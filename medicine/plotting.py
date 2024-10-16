@@ -149,7 +149,7 @@ def plot_training_loss(losses, figure_dir=None):
 
 
 def plot_depth_amplitude_distributions(
-    motion_corrector,
+    medicine_model,
     dataset,
     figure_dir=None,
     grid_size=100,
@@ -178,7 +178,7 @@ def plot_depth_amplitude_distributions(
     # Plot model-predicted distribution
     for ax, time in zip(axes_model, time_slices):
         uniform_batch = dataset.sample_uniform(time=time, grid_size=grid_size)
-        pred_distrib = motion_corrector(uniform_batch).detach().numpy()
+        pred_distrib = medicine_model(uniform_batch).detach().numpy()
         pred_distrib = np.reshape(pred_distrib, (grid_size, grid_size))
         extent = tuple(
             list(dataset.amplitude_range) + list(dataset.depth_range)
@@ -228,10 +228,10 @@ def plot_depth_amplitude_distributions(
     return fig
 
 
-def _get_predicted_motion(dataset, motion_corrector, num_depth_bins=15):
+def _get_predicted_motion(dataset, medicine_model, num_depth_bins=15):
     # Get times to evaluate predicted motion
-    time_range = motion_corrector.motion_predictor.time_range
-    num_time_bins = motion_corrector.motion_predictor.num_time_bins
+    time_range = medicine_model.motion_function.time_range
+    num_time_bins = medicine_model.motion_function.num_time_bins
     time_bins = np.linspace(*time_range, num_time_bins)
 
     # Get depth bins
@@ -248,7 +248,7 @@ def _get_predicted_motion(dataset, motion_corrector, num_depth_bins=15):
     # Get predicted motion of shape [num_time_bins, num_depth_bins]
     times_torch_flat = times_torch.flatten()
     depths_torch_flat = depths_torch.flatten()
-    pred_motion_flat = motion_corrector.motion_predictor(
+    pred_motion_flat = medicine_model.motion_function(
         times_torch_flat, depths_torch_flat
     )
     pred_motion = pred_motion_flat.reshape(num_time_bins, num_depth_bins)
@@ -264,13 +264,13 @@ def _get_predicted_motion(dataset, motion_corrector, num_depth_bins=15):
 
 
 def plot_predicted_motion(
-    motion_corrector, dataset, num_depth_bins=15, figure_dir=None
+    medicine_model, dataset, num_depth_bins=15, figure_dir=None
 ):
     """Plot motion over time."""
 
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        dataset, motion_corrector, num_depth_bins=num_depth_bins
+        dataset, medicine_model, num_depth_bins=num_depth_bins
     )
 
     # Plot predicted motion
@@ -290,12 +290,12 @@ def plot_predicted_motion(
 
 
 def plot_motion_corrected_raster(
-    dataset, motion_corrector, num_depth_bins=15, figure_dir=None
+    dataset, medicine_model, num_depth_bins=15, figure_dir=None
 ):
 
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        dataset, motion_corrector, num_depth_bins=num_depth_bins
+        dataset, medicine_model, num_depth_bins=num_depth_bins
     )
 
     # Plot new motion correction
@@ -318,13 +318,13 @@ def plot_motion_corrected_raster(
     return fig
 
 
-def run_post_motion_correction_plots(figure_dir, trainer):
+def run_post_motion_estimation_plots(figure_dir, trainer):
     # Create figure_dir if necessary
     if not figure_dir.exists():
         figure_dir.mkdir(parents=True)
 
     # Extract needed attributes from trainer
-    motion_corrector = trainer.motion_corrector
+    medicine_model = trainer.medicine_model
     dataset = trainer.dataset
     losses = trainer.losses
 
@@ -332,9 +332,9 @@ def run_post_motion_correction_plots(figure_dir, trainer):
     _ = plot_training_loss(losses, figure_dir=figure_dir)
 
     _ = plot_depth_amplitude_distributions(
-        motion_corrector, dataset, figure_dir=figure_dir
+        medicine_model, dataset, figure_dir=figure_dir
     )
-    _ = plot_predicted_motion(motion_corrector, dataset, figure_dir=figure_dir)
+    _ = plot_predicted_motion(medicine_model, dataset, figure_dir=figure_dir)
     _ = plot_motion_corrected_raster(
-        dataset, motion_corrector, figure_dir=figure_dir
+        dataset, medicine_model, figure_dir=figure_dir
     )

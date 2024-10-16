@@ -1,4 +1,12 @@
-"""Run MEDICINE on an example dataset and display summary plots."""
+"""Run MEDICINE on an example dataset and display summary plots.
+
+Usage:
+$ python run_demo.py
+
+This script runs MEDICINE on the data in ./example_dataset. It runs with fewer
+training steps than default to speed up the demo. The output plots are both
+displayed and saved to ./medicine_output.
+"""
 
 import sys
 
@@ -26,7 +34,8 @@ def main():
         peak_depths=peak_depths,
         peak_times=peak_times,
         output_dir="medicine_output",
-        training_steps=2000,
+        # training_steps=2000,
+        training_steps=1000,
         motion_noise_steps=1000,
     )
     plt.show()

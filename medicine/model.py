@@ -1,4 +1,4 @@
-"""Motion correction algorithm.
+"""MEDICINE motion estimation algorithm.
 
 The general idea of this algorithm is to fit two things to a recording:
     (i) The motion of the brain relative to a probe in depth.
@@ -22,11 +22,11 @@ follows:
         amplitude. In other words, the density is parameterized implicitly. This
         leads to much better fitting than an explicitly parameterized density.
 
-The fitting is done by gradient descent to maximize the fit of the distribution
+The fitting is done by gradient descent to maximize the fit of the activity
 to data across the entire session, specifically to classify with a logistic loss
 real datapoints from points randomly uniformly sampled in [depth, amplitude]
-space. Since the distribution does not depend on time, the motion is pressured
-to facilitate this classification, i.e. to stabilize the distribution over time.
+space. Since the activity does not depend on time, the motion is pressured
+to facilitate this classification, i.e. to stabilize the activity over time.
 """
 
 import math
@@ -198,8 +198,8 @@ class Dataset:
         return self._amplitude_range
 
 
-class MotionPredictor(torch.nn.Module):
-    """MotionPredictor class.
+class MotionFunction(torch.nn.Module):
+    """MotionFunction class.
 
     This class takes in a batch of timestamps and returns a batch of predicted
     motions.
@@ -212,7 +212,6 @@ class MotionPredictor(torch.nn.Module):
         time_bin_size,
         time_kernel_width,
         num_depth_bins=2,
-        depth_smoothing=None,
         epsilon=1e-3,
     ):
         """Constructor.
@@ -225,18 +224,16 @@ class MotionPredictor(torch.nn.Module):
             time_kernel_width: Scalar. Width of the smoothing kernel in units of
                 time.
             num_depth_bins: Int. Number of depth bins.
-            depth_smoothing: Scalar. Width of depth smoothing.
             epsilon: Small value to prevent division by zero.
         """
-        super(MotionPredictor, self).__init__()
+        super(MotionFunction, self).__init__()
         print(
-            "\nConstructing MotionPredictor object with parameters:\n"
+            "\nConstructing MotionFunction object with parameters:\n"
             f"    bound_normalized = {bound_normalized}\n"
             f"    time_range = {time_range}\n"
             f"    time_bin_size = {time_bin_size}\n"
             f"    time_kernel_width = {time_kernel_width}\n"
             f"    num_depth_bins = {num_depth_bins}\n"
-            f"    depth_smoothing = {depth_smoothing}"
         )
 
         self._bound_normalized = bound_normalized
@@ -244,9 +241,7 @@ class MotionPredictor(torch.nn.Module):
         self._time_bin_size = time_bin_size
         self._num_depth_bins = num_depth_bins
         self._epsilon = epsilon * epsilon
-        if depth_smoothing is None:
-            depth_smoothing = 1.0 / max(1, num_depth_bins - 1)
-        self._depth_smoothing = depth_smoothing + epsilon
+        self._depth_smoothing = 1.0 / max(1, num_depth_bins - 1) + epsilon
 
         # Construct motion matrix time kernel
         self._num_time_bins = math.ceil(
@@ -360,8 +355,8 @@ class MotionPredictor(torch.nn.Module):
         return smooth_motion_normalized
 
 
-class DistributionPredictor(torch.nn.Module):
-    """DistributionPredictor class.
+class ActivityNetwork(torch.nn.Module):
+    """ActivityNetwork class.
 
     This class takes in a batch of depths and amplitudes and returns an
     un-normalized probability for each of them occuring in the real dataset.
@@ -369,9 +364,9 @@ class DistributionPredictor(torch.nn.Module):
 
     def __init__(self, hidden_features=(256, 256), activation=None):
         """Constructor."""
-        super(DistributionPredictor, self).__init__()
+        super(ActivityNetwork, self).__init__()
         print(
-            "\nConstructing DistributionPredictor object with parameters:\n"
+            "\nConstructing ActivityNetwork object with parameters:\n"
             f"    hidden_features = {hidden_features}\n"
             f"    activation = {activation}"
         )
@@ -395,29 +390,29 @@ class DistributionPredictor(torch.nn.Module):
         ]
         net_inputs = torch.stack(features_depths + features_amplitudes, axis=1)
         net_outputs = self._net(net_inputs)[:, 0]
-        pred_distrib = self._sigmoid(net_outputs)
-        return pred_distrib
+        pred_activity = self._sigmoid(net_outputs)
+        return pred_activity
 
 
-class MotionCorrector(torch.nn.Module):
-    """MotionCorrector class."""
+class MEDICINE(torch.nn.Module):
+    """MEDICINE class."""
 
-    def __init__(self, motion_predictor, distribution_predictor, epsilon=1e-4):
+    def __init__(self, motion_function, activity_network, epsilon=1e-4):
         """Constructor.
 
         Args:
-            motion_predictor: MotionPredictor object. Callable, takes in a batch
+            motion_function: MotionFunction object. Callable, takes in a batch
                 of times and returns a batch of predicted motions.
-            distribution_predictor: DistributionPredictor object. Callable,
+            activity_network: ActivityNetwork object. Callable,
                 takes in a batch of depths and a batch of amplitudes and
                 returns a batch of likelihoods.
             epsilon: Small value to prevent logarithms from exploding.
         """
-        super(MotionCorrector, self).__init__()
-        print("\nConstructing MotionCorrector object")
+        super(MEDICINE, self).__init__()
+        print("\nConstructing MEDICINE object")
 
-        self.add_module("motion_predictor", motion_predictor)
-        self.add_module("distribution_predictor", distribution_predictor)
+        self.add_module("motion_function", motion_function)
+        self.add_module("activity_network", activity_network)
         self._epsilon = epsilon
 
     def forward(self, data_batch, motion_noise=0.0):
@@ -428,17 +423,17 @@ class MotionCorrector(torch.nn.Module):
                 'amplitudes'.
 
         Returns:
-            pred_distrib: Torch array of shape [batch_size]. Values in [0, 1].
+            pred_activity: Torch array of shape [batch_size]. Values in [0, 1].
         """
         times = data_batch["times"]
         depths = data_batch["depths"]
         amplitudes = data_batch["amplitudes"]
-        pred_motion = self.motion_predictor(times, depths)
+        pred_motion = self.motion_function(times, depths)
         pred_motion += motion_noise * torch.randn_like(pred_motion)
         pred_depths = depths + pred_motion
-        pred_distrib = self.distribution_predictor(pred_depths, amplitudes)
+        pred_activity = self.activity_network(pred_depths, amplitudes)
 
-        return pred_distrib
+        return pred_activity
 
     def loss(self, data_real, data_fake, motion_noise=0.0):
         """Compute loss on a batch of real and fake data.
@@ -452,14 +447,14 @@ class MotionCorrector(torch.nn.Module):
         Returns:
             loss: Torch scalar. Loss on the batch.
         """
-        pred_distrib_real = self.forward(data_real, motion_noise=motion_noise)
-        pred_distrib_fake = self.forward(data_fake, motion_noise=motion_noise)
+        pred_activity_real = self.forward(data_real, motion_noise=motion_noise)
+        pred_activity_fake = self.forward(data_fake, motion_noise=motion_noise)
 
-        # Logistic loss to pressure pred_distribution_real towards 1 and
-        # pred_distribution_fake towards 0
+        # Logistic loss to pressure pred_activity_real towards 1 and
+        # pred_activity_fake towards 0
         loss = -1 * (
-            torch.mean(torch.log(self._epsilon + pred_distrib_real))
-            + torch.mean(torch.log(self._epsilon + 1 - pred_distrib_fake))
+            torch.mean(torch.log(self._epsilon + pred_activity_real))
+            + torch.mean(torch.log(self._epsilon + 1 - pred_activity_fake))
         )
 
         return loss
@@ -470,7 +465,7 @@ class Trainer:
     def __init__(
         self,
         dataset,
-        motion_corrector,
+        medicine_model,
         batch_size,
         training_steps,
         initial_motion_noise=0.1,
@@ -481,7 +476,7 @@ class Trainer:
     ):
         """Constructor."""
         self._dataset = dataset
-        self._motion_corrector = motion_corrector
+        self._medicine_model = medicine_model
         self._batch_size = batch_size
         self._training_steps = training_steps
         self._initial_motion_noise = initial_motion_noise
@@ -490,16 +485,16 @@ class Trainer:
         self._grad_clip = grad_clip
 
         self._optimizer = optimizer(
-            self._motion_corrector.parameters(),
+            self._medicine_model.parameters(),
             lr=learning_rate,
         )
         self._losses = None
 
     def __call__(self):
         """Evaluate model on dataset."""
-        print("\nFitting motion correction")
+        print("\nFitting motion estimation")
 
-        motion_bound = self._motion_corrector.motion_predictor.bound_normalized
+        motion_bound = self._medicine_model.motion_function.bound_normalized
         training_losses = []
         for step in tqdm.tqdm(range(self._training_steps)):
 
@@ -515,7 +510,7 @@ class Trainer:
             data_fake = self._dataset.sample_fake(
                 batch_size=self._batch_size, motion_bound=motion_bound
             )
-            loss = self._motion_corrector.loss(
+            loss = self._medicine_model.loss(
                 data_real, data_fake, motion_noise=motion_noise
             )
             loss.backward()
@@ -523,17 +518,17 @@ class Trainer:
             # Clip gradients and step optimizer
             if self._grad_clip is not None:
                 torch.nn.utils.clip_grad_norm_(
-                    self._motion_corrector.parameters(), self._grad_clip
+                    self._medicine_model.parameters(), self._grad_clip
                 )
             self._optimizer.step()
             training_losses.append(float(loss.detach()))
 
         self._losses = training_losses
-        print("\nFinished fitting motion correction")
+        print("\nFinished fitting motion estimation")
 
     @property
-    def motion_corrector(self):
-        return self._motion_corrector
+    def medicine_model(self):
+        return self._medicine_model
 
     @property
     def dataset(self):
