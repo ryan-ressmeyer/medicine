@@ -1,0 +1,9 @@
+# Ignore these files when committing to git
+**/__pycache__
+**/.ipynb_checkpoints
+**.DS_Store
+**.vscode
+**.pyc
+**.idea**
+**/_gitignore**
+medicine_demos/medicine_output
