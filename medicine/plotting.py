@@ -214,7 +214,7 @@ def plot_training_loss(
 
 
 def plot_depth_amplitude_distributions(
-    medicine_model: model.MEDICINE,
+    medicine_model: model.Medicine,
     dataset: model.Dataset,
     figure_dir: None | str = None,
     grid_size: int = 100,
@@ -224,7 +224,7 @@ def plot_depth_amplitude_distributions(
     """Plot distribution of depths and amplitudes.
 
     Args:
-        medicine_model: Trained MEDICINE model.
+        medicine_model: Trained Medicine model.
         dataset: Dataset object.
         figure_dir: Directory to save figure to.
         grid_size: Number of grid points for plotting.
@@ -254,7 +254,7 @@ def plot_depth_amplitude_distributions(
 
     # Plot model-predicted distribution
     for ax, time in zip(axes_model, time_slices):
-        uniform_batch = dataset.sample_uniform(time=time, grid_size=grid_size)
+        uniform_batch = dataset.sample_grid(time=time, grid_size=grid_size)
         pred_distrib = medicine_model(uniform_batch).detach().numpy()
         pred_distrib = np.reshape(pred_distrib, (grid_size, grid_size))
         extent = tuple(
@@ -306,7 +306,7 @@ def plot_depth_amplitude_distributions(
 
 
 def _get_predicted_motion(
-    medicine_model: model.MEDICINE,
+    medicine_model: model.Medicine,
     dataset: model.Dataset,
     num_depth_bins: int = 15,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -314,7 +314,7 @@ def _get_predicted_motion(
 
     Args:
         dataset: Dataset object.
-        medicine_model: Trained MEDICINE model.
+        medicine_model: Trained Medicine model.
         num_depth_bins: Number of depth bins.
 
     Returns:
@@ -360,7 +360,7 @@ def _get_predicted_motion(
 
 
 def plot_predicted_motion(
-    medicine_model: model.MEDICINE,
+    medicine_model: model.Medicine,
     dataset: model.Dataset,
     num_depth_bins: int = 15,
     figure_dir: None | str = None,
@@ -368,7 +368,7 @@ def plot_predicted_motion(
     """Plot motion over time.
 
     Args:
-        medicine_model: Trained MEDICINE model.
+        medicine_model: Trained Medicine model.
         dataset: Dataset object.
         num_depth_bins: Number of depth bins.
         figure_dir: Directory to save figure to.
@@ -399,7 +399,7 @@ def plot_predicted_motion(
 
 def plot_motion_corrected_raster(
     dataset: model.Dataset,
-    medicine_model: model.MEDICINE,
+    medicine_model: model.Medicine,
     num_depth_bins: int = 15,
     figure_dir: None | str = None,
 ) -> plt.Figure:
@@ -407,7 +407,7 @@ def plot_motion_corrected_raster(
 
     Args:
         dataset: Dataset object.
-        medicine_model: Trained MEDICINE model.
+        medicine_model: Trained Medicine model.
         num_depth_bins: Number of depth bins.
         figure_dir: Directory to save figure to.
 

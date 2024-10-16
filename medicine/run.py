@@ -121,7 +121,7 @@ def run_medicine(
     )
 
     # Create medicine model
-    medicine_model = model.MEDICINE(
+    medicine_model = model.Medicine(
         motion_function=motion_function,
         activity_network=model.ActivityNetwork(
             hidden_features=activity_network_hidden_features,
