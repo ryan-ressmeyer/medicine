@@ -1,4 +1,6 @@
-"""Read motion correction data."""
+"""Plotting utilities for MEDICINE."""
+
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,10 +9,30 @@ import torch
 from matplotlib import colors as matplotlib_colors
 from scipy import interpolate as scipy_interpolate
 
+from medicine import model
+
 
 def _correct_motion_on_peaks(
-    peak_times, peak_depths, motion, time_bins, depth_bins
-):
+    peak_times: np.ndarray,
+    peak_depths: np.ndarray,
+    motion: np.ndarray,
+    time_bins: np.ndarray,
+    depth_bins: np.ndarray,
+) -> np.ndarray:
+    """Correct motion on peaks using interpolation of the motion field.
+
+    Args:
+        peak_times: Array of shape [num_peaks] containing peak times.
+        peak_depths: Array of shape [num_peaks] containing peak depths.
+        motion: Array of shape [num_time_bins, num_depth_bins] containing
+            motion.
+        time_bins: Array of shape [num_time_bins] containing time bins.
+        depth_bins: Array of shape [num_depth_bins] containing depth bins.
+
+    Returns:
+        corrected_peak_depths: Array of shape [num_peaks] containing corrected
+            peak depths.
+    """
     corrected_peak_depths = peak_depths.copy()
     f = scipy_interpolate.RegularGridInterpolator(
         (time_bins, depth_bins),
@@ -26,19 +48,37 @@ def _correct_motion_on_peaks(
 
 
 def plot_motion_correction(
-    peak_times,
-    peak_depths,
-    peak_amplitudes,
-    time_bins,
-    depth_bins,
-    motion,
-    stride=30,
-    alpha=0.75,
-    lw=1,
-    colormap="winter",
-    motion_color="r",
-):
-    """Plot raster-map before and after motion correction."""
+    peak_times: np.ndarray,
+    peak_depths: np.ndarray,
+    peak_amplitudes: np.ndarray,
+    time_bins: np.ndarray,
+    depth_bins: np.ndarray,
+    motion: np.ndarray,
+    stride: int = 30,
+    alpha: float = 0.75,
+    lw: float = 1,
+    colormap: str = "winter",
+    motion_color: str = "r",
+) -> plt.Figure:
+    """Plot raster-map before and after motion correction.
+
+    Args:
+        peak_times: Array of shape [num_peaks] containing peak times.
+        peak_depths: Array of shape [num_peaks] containing peak depths.
+        peak_amplitudes: Array of shape [num_peaks] containing peak amplitudes.
+        time_bins: Array of shape [num_time_bins] containing time bins.
+        depth_bins: Array of shape [num_depth_bins] containing depth bins.
+        motion: Array of shape [num_time_bins, num_depth_bins] containing
+            motion.
+        stride: Stride for subsampling.
+        alpha: Transparency of points.
+        lw: Line width for motion correction traces.
+        colormap: Colormap for amplitudes.
+        motion_color: Color for motion correction traces.
+
+    Returns:
+        fig: Matplotlib figure showing raster-map before and after motion.
+    """
 
     # Subsample
     peak_times = peak_times[::stride]
@@ -49,16 +89,17 @@ def plot_motion_correction(
     amp_argsort = np.argsort(np.argsort(peak_amplitudes))
     peak_amplitudes = amp_argsort / len(peak_amplitudes)
 
-    # Get colors and create figure
-    cmap = plt.get_cmap(colormap)
-    colors = cmap(peak_amplitudes)
-    fig, axes = plt.subplots(1, 3, figsize=(15, 10), sharex=True, sharey=True)
-
+    # Function for plotting neural activity
     def _plot_neural_activity(ax, times, depths):
         plot = ax.scatter(times, depths, s=1, c=colors, alpha=alpha)
         ax.set_xlabel("time (s)", fontsize=12)
         ax.set_ylabel("depth from probe tip ($\mu$m)", fontsize=12)
         return plot
+
+    # Get colors and create figure
+    cmap = plt.get_cmap(colormap)
+    colors = cmap(peak_amplitudes)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 10), sharex=True, sharey=True)
 
     # Plot raw peaks
     _ = _plot_neural_activity(axes[0], peak_times, peak_depths)
@@ -90,10 +131,24 @@ def plot_motion_correction(
 
 
 def plot_raster_and_amplitudes(
-    peak_times, peak_depths, peak_amplitudes, stride=10, figure_dir=None
-):
-    """Plot raster of raw data and a histogram of amplitudes."""
+    peak_times: np.ndarray,
+    peak_depths: np.ndarray,
+    peak_amplitudes: np.ndarray,
+    stride: int = 10,
+    figure_dir: None | str = None,
+) -> plt.Figure:
+    """Plot raster of raw data and a histogram of amplitudes.
 
+    Args:
+        peak_times: Array of shape [num_peaks] containing peak times.
+        peak_depths: Array of shape [num_peaks] containing peak depths.
+        peak_amplitudes: Array of shape [num_peaks] containing peak amplitudes.
+        stride: Stride for subsampling.
+        figure_dir: Directory to save figure to.
+
+    Returns:
+        fig: Matplotlib figure showing raw raster and amplitude histogram.
+    """
     peak_times = peak_times[::stride]
     peak_depths = peak_depths[::stride]
     peak_amplitudes = peak_amplitudes[::stride]
@@ -130,9 +185,19 @@ def plot_raster_and_amplitudes(
     return fig
 
 
-def plot_training_loss(losses, figure_dir=None):
-    """Plot training loss."""
+def plot_training_loss(
+    losses: list,
+    figure_dir: None | str = None,
+) -> plt.Figure:
+    """Plot training loss.
 
+    Args:
+        losses: List of training losses.
+        figure_dir: Directory to save figure to.
+
+    Returns:
+        fig: Matplotlib figure showing training loss over time.
+    """
     fig, ax = plt.subplots(figsize=(6, 3))
     ax.plot(losses)
     ax.set_title("Loss throughout training")
@@ -149,15 +214,27 @@ def plot_training_loss(losses, figure_dir=None):
 
 
 def plot_depth_amplitude_distributions(
-    medicine_model,
-    dataset,
-    figure_dir=None,
-    grid_size=100,
-    num_timepoints=5,
-    data_samples_per_plot=30000,
-):
-    """Plot distribution of depths and amplitudes"""
+    medicine_model: model.MEDICINE,
+    dataset: model.Dataset,
+    figure_dir: None | str = None,
+    grid_size: int = 100,
+    num_timepoints: int = 5,
+    data_samples_per_plot: int = 30000,
+) -> plt.Figure:
+    """Plot distribution of depths and amplitudes.
 
+    Args:
+        medicine_model: Trained MEDICINE model.
+        dataset: Dataset object.
+        figure_dir: Directory to save figure to.
+        grid_size: Number of grid points for plotting.
+        num_timepoints: Number of timepoints to plot.
+        data_samples_per_plot: Number of data samples to plot.
+
+    Returns:
+        fig: Matplotlib figure showing predicted and real depth-amplitude
+            distributions.
+    """
     # Find timepoints to plot
     time_slice_proportions = np.linspace(0.0, 1.0, num_timepoints)[1:-1]
     dataset_times = dataset.times.numpy()
@@ -228,7 +305,26 @@ def plot_depth_amplitude_distributions(
     return fig
 
 
-def _get_predicted_motion(dataset, medicine_model, num_depth_bins=15):
+def _get_predicted_motion(
+    medicine_model: model.MEDICINE,
+    dataset: model.Dataset,
+    num_depth_bins: int = 15,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Get predicted motion over time and depth.
+
+    Args:
+        dataset: Dataset object.
+        medicine_model: Trained MEDICINE model.
+        num_depth_bins: Number of depth bins.
+
+    Returns:
+        times: Array of shape [num_time_bins, num_depth_bins] containing time
+            bins.
+        depths: Array of shape [num_time_bins, num_depth_bins] containing depth
+            bins.
+        pred_motion: Array of shape [num_time_bins, num_depth_bins] containing
+            predicted motion.
+    """
     # Get times to evaluate predicted motion
     time_range = medicine_model.motion_function.time_range
     num_time_bins = medicine_model.motion_function.num_time_bins
@@ -264,13 +360,25 @@ def _get_predicted_motion(dataset, medicine_model, num_depth_bins=15):
 
 
 def plot_predicted_motion(
-    medicine_model, dataset, num_depth_bins=15, figure_dir=None
-):
-    """Plot motion over time."""
+    medicine_model: model.MEDICINE,
+    dataset: model.Dataset,
+    num_depth_bins: int = 15,
+    figure_dir: None | str = None,
+) -> plt.Figure:
+    """Plot motion over time.
 
+    Args:
+        medicine_model: Trained MEDICINE model.
+        dataset: Dataset object.
+        num_depth_bins: Number of depth bins.
+        figure_dir: Directory to save figure to.
+
+    Returns:
+        fig: Matplotlib figure showing predicted motion over time.
+    """
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        dataset, medicine_model, num_depth_bins=num_depth_bins
+        medicine_model, dataset, num_depth_bins=num_depth_bins
     )
 
     # Plot predicted motion
@@ -290,12 +398,25 @@ def plot_predicted_motion(
 
 
 def plot_motion_corrected_raster(
-    dataset, medicine_model, num_depth_bins=15, figure_dir=None
-):
+    dataset: model.Dataset,
+    medicine_model: model.MEDICINE,
+    num_depth_bins: int = 15,
+    figure_dir: None | str = None,
+) -> plt.Figure:
+    """Plot raster-map with motion correction.
 
+    Args:
+        dataset: Dataset object.
+        medicine_model: Trained MEDICINE model.
+        num_depth_bins: Number of depth bins.
+        figure_dir: Directory to save figure to.
+
+    Returns:
+        fig: Matplotlib figure showing raster-map with motion correction.
+    """
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        dataset, medicine_model, num_depth_bins=num_depth_bins
+        medicine_model, dataset, num_depth_bins=num_depth_bins
     )
 
     # Plot new motion correction
@@ -318,7 +439,16 @@ def plot_motion_corrected_raster(
     return fig
 
 
-def run_post_motion_estimation_plots(figure_dir, trainer):
+def run_post_motion_estimation_plots(
+    figure_dir: Path,
+    trainer: model.Trainer,
+) -> None:
+    """Run and save post-motion estimation plots.
+
+    Args:
+        figure_dir: Directory to save figures to.
+        trainer: Trained MEDICINE model.
+    """
     # Create figure_dir if necessary
     if not figure_dir.exists():
         figure_dir.mkdir(parents=True)

@@ -4,6 +4,8 @@ This file contains a function run_medicine() that is the main entry point for
 running MEDICINE motion estimation. It takes in peak times, depths, and
 amplitudes. It creates and runs MEDICINE motion estimation on the data and saves
 the results to an output directory.
+
+Usage: See ../medicine_demos/run_demo.py for an example of usage.
 """
 
 import json
@@ -57,6 +59,9 @@ def run_medicine(
         learning_rate: Learning rate for training.
         epsilon: Small value to prevent instabilities.
         plot_figures: Whether to plot figures.
+
+    Returns:
+        trainer: Trainer object after running motion estimation.
     """
     # Create and clear output_dir
     print(f"\nCreating output_dir {output_dir}")
