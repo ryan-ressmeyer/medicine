@@ -34,8 +34,7 @@ def main():
         peak_depths=peak_depths,
         peak_times=peak_times,
         output_dir="medicine_output",
-        # training_steps=2000,
-        training_steps=1000,
+        training_steps=2000,
         motion_noise_steps=1000,
     )
     plt.show()

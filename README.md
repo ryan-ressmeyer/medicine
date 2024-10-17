@@ -73,6 +73,10 @@ Here are descriptions of all of the hyperparameters in the [MEDICINE method](med
 
 The MEDICINE model is not sensitive to most of these hyperparameters. We have never needed to tune hyperparameters for any of dozens of our NHP neurophysiology datasets. The only parameters we can imagine may be necessary to tune are `motion_bound` and `time_kernel_width`.
 
+## Reproducing Our Results
+
+To reproduce the results in our paper, please see [https://jazlab.github.io/medicine_paper/](https://jazlab.github.io/medicine_paper/). This has all code and instructions for replicating our results.
+
 ## Contact and Support
 
 Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for information about support.

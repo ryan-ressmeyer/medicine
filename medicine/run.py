@@ -26,7 +26,7 @@ def run_medicine(
     time_bin_size: float = 1,
     time_kernel_width: float = 30,
     activity_network_hidden_features: tuple = (256, 256),
-    num_depth_bins: int = 1,
+    num_depth_bins: int = 2,
     batch_size: int = 4096,
     training_steps: int = 10000,
     initial_motion_noise: float = 0.1,

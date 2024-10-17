@@ -29,12 +29,14 @@ setup(
         "python",
     ],
     packages=(
-        ["medicine_demos", "medicine"]
-        + ["medicine_demos." + x for x in find_packages("medicine_demos")]
+        ["medicine", "medicine_demos"]
         + ["medicine." + x for x in find_packages("medicine")]
+        + ["medicine_demos." + x for x in find_packages("medicine_demos")]
     ),
     install_requires=[
-        "torch==2.2.2",
+        "torch==2.5.0",
+        "seaborn==0.13.2",
+        "scipy==1.14.1",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

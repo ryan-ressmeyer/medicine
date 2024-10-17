@@ -103,6 +103,7 @@ def plot_motion_correction(
 
     # Plot raw peaks
     _ = _plot_neural_activity(axes[0], peak_times, peak_depths)
+    axes[0].set_title("Spikes")
 
     # Plot raw peaks with motion correction traces
     _ = _plot_neural_activity(axes[1], peak_times, peak_depths)
@@ -114,6 +115,7 @@ def plot_motion_correction(
         color=motion_color,
     )
     axes[1].yaxis.set_ticks_position("both")
+    axes[1].set_title("Spikes with Motion Estimation")
 
     # Plot motion-corrected peaks
     peak_depths_corrected = _correct_motion_on_peaks(
@@ -126,6 +128,7 @@ def plot_motion_correction(
     plot = _plot_neural_activity(axes[2], peak_times, peak_depths_corrected)
     fig.colorbar(plot, ax=axes[2])
     axes[2].yaxis.set_ticks_position("both")
+    axes[2].set_title("Spikes After Motion Correction")
 
     return fig
 
