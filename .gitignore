@@ -7,3 +7,5 @@
 **.idea**
 **/_gitignore**
 medicine_demos/medicine_output
+.jekyll-cache
+_site

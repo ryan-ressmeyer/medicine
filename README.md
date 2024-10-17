@@ -1,53 +1,79 @@
-# Motion Estimation by DIstributional Contrastive Inference for NEurophysioloy (MEDICINE)
+# MEDICINE: Motion Estimation by DIstributional Contrastive Inference for NEurophysioloy
 
-Motion Estimation by DIstributional Contrastive Inference for NEurophysioloy
-(MEDICINE) is a method for correcting motion in neurophysiology data.
+MEDICINE is a method for estimating motion in neurophysiology data for spike
+sorting. See our [publication](https://) for a complete description of the
+method and results.
 
 ## Introduction
 
-The general idea of this algorithm is to fit two things to a recording:
-    (i) The motion of the brain relative to a probe in depth.
-    (ii) An activity distribution of the brain along the probe.
-These are fit based on peaks (essentially threshold crossings) extracted from
-neural recording. The peaks have two parameters: depth and amplitude.
+The general idea of MEDICINE is to decompose neural activity data into two
+components:
+* The **motion** of the brain relative to a probe in depth.
+* An **activity distribution** of the brain along the probe. These two
+components are jointly optimized via gradient descent to maximize the likelihood
+of a dataset of detected spikes extracted from a neural recording session. Here
+is a video of this optimization process in action:
 
-The algorithm fits motion and activity simultaneously. They are parameterized as
-follows:
-    Motion: The motion is parameterized as a discretized timeseries across the
-        entire session. The discretization has bin size, e.g. 1 second, in which
-        case motion is a vector of length number of seconds in the session,
-        where values are the motion in microns at that point in time.
-        Importantly, we smooth this motion vector with a triangular kernel
-        (~30-second support tends to work well), to prevent the motion from
-        being too jumpy and noise-sensitive. In the future, a Gaussian process
-        prior might be more principled.
-    Activity distribution: The activity distribution in [depth, amplitude] space
-        is parameterized by a neural network taking a (depth, amplitude) point
-        and returning the probability of receiving a spike with that depth and
-        amplitude. In other words, the density is parameterized implicitly. This
-        leads to much better fitting than an explicitly parameterized density.
+<img src="graphics/model_fitting.gif" width="900">
 
-The fitting is done by gradient descent to maximize the fit of the distribution
-to data across the entire session, specifically to classify with a logistic loss
-real datapoints from points randomly uniformly sampled in [depth, amplitude]
-space. Since the distribution does not depend on time, the motion is pressured
-to facilitate this classification, i.e. to stabilize the distribution over time.
+The red curves on the left show the motion learned by the model, the heatmap on
+the right show the activity distribution learned by the model and the
+scatterplots show detected spikes (colored by amplitude).
 
-## Installation
-
-Please use a virtual environment before installing.
-
-This library requires the following dependencies:
-```
-pip install spikeinterface
-pip install torch
-```
+<img src="graphics/model_schematic.jpg" width="900">
 
 ## Usage
 
-See the notebook `run_motion_correction.ipynb` for example usage.
+### Getting Started
 
-## Distribution
+We recomend using a virtual environment (e.g. conda or pipenv) to manage dependencies. Once in a virtual environment, install MEDICINE with:
+```
+pip install medicine-neuro
+```
+This will also install the necessary dependencies.
 
-This repo is intended for use only within JazLab and is not intended for
-distribution. If you have questions about this, please talk with Nick.
+Then you can run the demo script with
+```
+python -m medicine_demos.run_demo
+```
+This will run the [`demo script`](medicine_demos/run_demo.py) and display several figures showing the results. See [medicine_demos/run_demo.py](medicine_demos/run_demo.py) for more details.
+
+### Hyperparameters
+
+### SpikeInterface Integration
+
+### Kilosort Integration
+
+# Contact and Support
+
+Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for information about support.
+Please email Nick Watters at nwatters@mit.edu with questions and feedback.
+
+# Reference
+
+If you use MEDICINE or a derivative of it in your work, please cite it as
+follows:
+
+```
+@misc{watters2024,
+author = {Nicholas Watters and Mehrdad Jazayeri},
+title = {MEDICINE: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology},
+url = {https://arxiv.org/},
+journal = {arXiv preprint arXiv:},
+year = {2024}
+}
+```
+
+# MEDICINE Website
+
+The [MEDICINE website](https://jazlab.github.io/medicine.github.io/) is a
+[GitHub Pages](https://pages.github.com/) website with a [Slate
+theme](https://github.com/pages-themes/slate). The website is generated from
+this [`README.md`](README.md) with the settings in [`_config.yml`](_config.yml) and
+the Ruby dependencies in [`Gemfile`](Gemfile).
+
+If you would like to modify the website, first make sure you can test deploying
+it locally by following the [GitHub Pages testing
+instructions](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll).
+Then modify this [`README.md`](README.md) and test deploy to view the changes
+before committing.
