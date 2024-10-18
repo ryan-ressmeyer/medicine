@@ -1,16 +1,11 @@
 # MEDICINE: Motion Estimation by DIstributional Contrastive Inference for NEurophysioloy
 
+## Introduction
 
 MEDICINE is a method for estimating motion in neurophysiology data for spike
 sorting. See our [publication](https://) for a complete description of the
-method and results.
-
-* TOC {:toc}
-
-## Introduction
-
-The general idea of MEDICINE is to decompose neural activity data into two
-components:
+method and results. The general idea of MEDICINE is to decompose neural activity
+data into two components:
 * The **motion** of the brain relative to a probe in depth.
 * An **activity distribution** of the brain along the probe.
 
@@ -18,13 +13,13 @@ These two components are jointly optimized via gradient descent to maximize the
 likelihood of a dataset of detected spikes extracted from a neural recording
 session. Here is a video of this optimization process in action:
 
-<img src="graphics/model_fitting.gif" width="640">
+<img src="graphics/model_fitting.gif" width="100%">
 
 The red curves on the left show the motion learned by the model, the heatmap on
 the right show the activity distribution learned by the model and the
 scatterplots show detected spikes (colored by amplitude).
 
-<img src="graphics/model_schematic.jpg" width="640">
+<img src="graphics/model_schematic.jpg" width="100%">
 
 ## Usage
 

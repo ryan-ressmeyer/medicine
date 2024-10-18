@@ -12,7 +12,3 @@ titles_from_headings:
 
 title: MEDICINE
 description: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology
-
-markdown: kramdown
-kramdown:
-  toc_levels: "2,3"
