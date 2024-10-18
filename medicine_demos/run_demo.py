@@ -25,9 +25,10 @@ CURRENT_DIR = Path(__file__).parent
 def main():
     """Run MEDICINE on example dataset."""
     # Load data
-    peak_amplitudes = np.load("peak_amplitudes.csv")
-    peak_depths = np.load("peak_depths.csv")
-    peak_times = np.load("peak_times.csv")
+    example_dataset_dir = CURRENT_DIR / "example_dataset"
+    peak_amplitudes = np.load(example_dataset_dir / "peak_amplitudes.npy")
+    peak_depths = np.load(example_dataset_dir / "peak_depths.npy")
+    peak_times = np.load(example_dataset_dir / "peak_times.npy")
 
     # Run MEDICINE and display output plots
     medicine_run.run_medicine(
