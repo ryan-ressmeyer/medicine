@@ -35,6 +35,8 @@ import numpy as np
 import torch
 import tqdm
 
+from medicine.logger import logger
+
 
 class MLP(torch.nn.Module):
     """MLP model."""
@@ -121,7 +123,7 @@ class Dataset:
                 See "raw_raster_and_amplitudes.png" output figure for a
                 histogram of all amplitudes used by the model.
         """
-        print('\nConstructing Dataset instance')
+        logger.info('Constructing Dataset instance')
         
         # Apply amplitude threshold
         if amplitude_threshold_quantile > 0:
@@ -282,13 +284,13 @@ class MotionFunction(torch.nn.Module):
             epsilon: Small value to prevent division by zero.
         """
         super(MotionFunction, self).__init__()
-        print(
-            '\nConstructing MotionFunction instance with parameters:\n'
+        logger.info(
+            'Constructing MotionFunction instance with parameters:\n'
             f'    bound_normalized = {bound_normalized}\n'
             f'    time_range = {time_range}\n'
             f'    time_bin_size = {time_bin_size}\n'
             f'    time_kernel_width = {time_kernel_width}\n'
-            f'    num_depth_bins = {num_depth_bins}\n'
+            f'    num_depth_bins = {num_depth_bins}'
         )
         self._bound_normalized = bound_normalized
         self._time_range = time_range
@@ -338,7 +340,7 @@ class MotionFunction(torch.nn.Module):
                 kernel, normalized to have unit area.
         """
         if time_kernel_width < self._time_bin_size:
-            print(
+            logger.info(
                 f'time_kernel_width {time_kernel_width} is smaller than '
                 f'time_bin_size {self._time_bin_size}, so rounding up '
                 'smoothing kernel to one bin.\n'
@@ -443,8 +445,8 @@ class ActivityNetwork(torch.nn.Module):
                 include in the input to the network.
         """
         super(ActivityNetwork, self).__init__()
-        print(
-            '\nConstructing ActivityNetwork instance with parameters:\n'
+        logger.info(
+            'Constructing ActivityNetwork instance with parameters:\n'
             f'    hidden_features = {hidden_features}\n'
             f'    activation = {activation}'
         )
@@ -495,7 +497,7 @@ class Medicine(torch.nn.Module):
             epsilon: Small value to prevent logarithms from exploding.
         """
         super(Medicine, self).__init__()
-        print('\nConstructing Medicine instance')
+        logger.info('Constructing Medicine instance')
 
         self.add_module('motion_function', motion_function)
         self.add_module('activity_network', activity_network)
@@ -614,7 +616,7 @@ class Trainer:
 
     def __call__(self):
         """Evaluate model on dataset."""
-        print("\nFitting motion estimation")
+        logger.info("Fitting motion estimation")
 
         motion_bound = self._medicine_model.motion_function.bound_normalized
         training_losses = []
@@ -656,7 +658,7 @@ class Trainer:
             training_losses.append(float(loss.cpu().detach()))
 
         self._losses = training_losses
-        print('\nFinished fitting motion estimation')
+        logger.info('Finished fitting motion estimation')
 
     @property
     def medicine_model(self) -> Medicine:

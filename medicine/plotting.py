@@ -10,6 +10,7 @@ from matplotlib import colors as matplotlib_colors
 from scipy import interpolate as scipy_interpolate
 
 from medicine import model
+from medicine.logger import logger
 
 
 def _correct_motion_on_peaks(
@@ -182,7 +183,7 @@ def plot_raster_and_amplitudes(
     # Save figure
     if figure_dir is not None:
         save_path = figure_dir / 'raw_raster_and_amplitudes.png'
-        print(f'Saving figure to {save_path}')
+        logger.info(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -210,7 +211,7 @@ def plot_training_loss(
     # Save figure
     if figure_dir is not None:
         save_path = figure_dir / 'training_loss.png'
-        print(f'Saving figure to {save_path}')
+        logger.info(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -290,7 +291,7 @@ def plot_depth_amplitude_distributions(
                 thresh=0.01,
             )
         except:
-            print('Error happened in sns.kdeplot')
+            logger.info('Error happened in sns.kdeplot')
         ax.set_xlim(amp_range)
         ax.set_ylim(loc_range)
         ax.set_title(f'Data, Time = {int(np.round(time))} sec')
@@ -302,7 +303,7 @@ def plot_depth_amplitude_distributions(
     # Save figure
     if figure_dir is not None:
         save_path = figure_dir / 'depth_amplitude_distributions.png'
-        print(f'Saving figure to {save_path}')
+        logger.info(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -394,7 +395,7 @@ def plot_predicted_motion(
     # Save figure
     if figure_dir is not None:
         save_path = figure_dir / 'predicted_motion.png'
-        print(f'Saving figure to {save_path}')
+        logger.info(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -436,7 +437,7 @@ def plot_motion_corrected_raster(
     # Save figure
     if figure_dir is not None:
         save_path = figure_dir / 'corrected_motion_raster.png'
-        print(f'Saving figure to {save_path}')
+        logger.info(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig

@@ -10,7 +10,7 @@ displayed and saved to ./medicine_output.
 
 import sys
 
-sys.path.insert(0, "..")
+sys.path.insert(0, '..')
 
 from pathlib import Path
 
@@ -23,28 +23,23 @@ from medicine import run as medicine_run
 def main():
     """Run MEDICINE on example dataset."""
     # Load data
-    # dataset_dir = Path("./example_dataset")
-    dataset_dir = Path("./tmp_dataset")
-    peak_amplitudes = np.load(dataset_dir / "peak_amplitudes.npy")
-    peak_depths = np.load(dataset_dir / "peak_depths.npy")
-    peak_times = np.load(dataset_dir / "peak_times.npy")
+    dataset_dir = Path('./example_dataset')
+    peak_amplitudes = np.load(dataset_dir / 'peak_amplitudes.npy')
+    peak_depths = np.load(dataset_dir / 'peak_depths.npy')
+    peak_times = np.load(dataset_dir / 'peak_times.npy')
 
     # Run MEDICINE and display output plots
     medicine_run.run_medicine(
         peak_amplitudes=peak_amplitudes,
         peak_depths=peak_depths,
         peak_times=peak_times,
-        output_dir="medicine_output",
+        output_dir='medicine_output',
         num_depth_bins=1,
-        # training_steps=2000,
-        # motion_noise_steps=1000,
         training_steps=2000,
         motion_noise_steps=1000,
-        time_kernel_width=50,
-        amplitude_threshold_quantile=-0.5
     )
     plt.show()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

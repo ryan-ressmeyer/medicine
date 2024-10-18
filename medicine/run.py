@@ -15,6 +15,7 @@ import numpy as np
 import torch
 
 from medicine import model, plotting
+from medicine.logger import logger
 
 
 def run_medicine(
@@ -72,10 +73,10 @@ def run_medicine(
         trainer: Trainer object after running motion estimation.
     """
     # Create and clear output_dir
-    print(f'\nCreating output_dir {output_dir}')
+    logger.info(f'Creating output_dir {output_dir}')
     output_dir = Path(output_dir)
     if output_dir.exists():
-        print(f'Warning: {output_dir} already exists')
+        logger.info(f'Warning: {output_dir} already exists')
     output_dir.mkdir(exist_ok=True, parents=True)
 
     # Save parameters
@@ -96,7 +97,7 @@ def run_medicine(
         plot_figures=plot_figures,
     )
     parameters_path = output_dir / 'medicine_parameters.json'
-    print(f'\nSaving parameters to {output_dir}')
+    logger.info(f'Saving parameters to {output_dir}')
     json.dump(parameters, open(parameters_path, 'w'))
 
     # Plot raster and amplitudes if necessary
@@ -173,7 +174,7 @@ def run_medicine(
     )
 
     # Save motion estimation results
-    print(f'Saving outputs to {output_dir}')
+    logger.info(f'Saving outputs to {output_dir}')
     np.save(output_dir / 'time_bins.npy', time_bins)
     np.save(output_dir / 'depth_bins.npy', depth_bins)
     np.save(output_dir / 'motion.npy', pred_motion)
