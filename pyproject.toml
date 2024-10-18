@@ -35,7 +35,7 @@ classifiers = [
 ]
 
 [tool.setuptools]
-packages = ["medicine_demos"]
+packages = ["medicine", "medicine_demos"]
 
 [tool.setuptools.package-data]
 "medicine_demos" = ["example_dataset/*.csv"]
