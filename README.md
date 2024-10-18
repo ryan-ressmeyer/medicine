@@ -36,9 +36,11 @@ Then you can run the demo script with
 ```
 python -m medicine_demos.run_demo
 ```
-This will run the [`demo script`](medicine_demos/run_demo.py) and display
-several figures showing the results. See
-[medicine_demos/run_demo.py](medicine_demos/run_demo.py) for more details.
+This will run the [`demo
+script`](https://github.com/jazlab/medicine/blob/main/medicine_demos/run_demo.py)
+and display several figures showing the results. See
+[medicine_demos/run_demo.py](https://github.com/jazlab/medicine/blob/main/medicine_demos/run_demo.py)
+for more details.
 
 ### SpikeInterface Integration
 
@@ -51,7 +53,7 @@ To-Do.
 ### Hyperparameters
 
 Here are descriptions of all of the hyperparameters in the [MEDICINE
-method](medicine/run.py#L20):
+method](https://github.com/jazlab/medicine/blob/main/medicine/run.py#L20):
 * `motion_bound`: Float, default 800. A bound on the maximum allowed absolute
   motion, namely the spread of the motion function output. Units are the same as
   units of spike depth (typically microns). The motion function is smoothed
@@ -128,8 +130,10 @@ This has all code and instructions for replicating our results.
 
 ## Contact and Support
 
-Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for information about support.
-Please email Nick Watters at nwatters@mit.edu with questions and feedback.
+Please see
+[`CONTRIBUTING.md`](https://github.com/jazlab/medicine/blob/main/CONTRIBUTING.md)
+for information about support. Please email Nick Watters at nwatters@mit.edu
+with questions and feedback.
 
 ## Reference
 
@@ -151,11 +155,15 @@ year = {2024}
 The [MEDICINE website](https://jazlab.github.io/medicine/) is a [GitHub
 Pages](https://pages.github.com/) website with a [Slate
 theme](https://github.com/pages-themes/slate). The website is generated from
-this [`README.md`](README.md) with the settings in [`_config.yml`](_config.yml)
-and the Ruby dependencies in [`Gemfile`](Gemfile).
+this [`README.md`](https://github.com/jazlab/medicine/blob/main/README.md) with
+the settings in
+[`_config.yml`](https://github.com/jazlab/medicine/blob/main/_config.yml) and
+the Ruby dependencies in
+[`Gemfile`](https://github.com/jazlab/medicine/blob/main/Gemfile).
 
 If you would like to modify the website, first make sure you can test deploying
 it locally by following the [GitHub Pages testing
 instructions](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/testing-your-github-pages-site-locally-with-jekyll).
-Then modify this [`README.md`](README.md) and test deploy to view the changes
-before committing.
+Then modify this
+[`README.md`](https://github.com/jazlab/medicine/blob/main/README.md) and test
+deploy to view the changes before committing.
