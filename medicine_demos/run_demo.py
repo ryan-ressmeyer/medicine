@@ -22,19 +22,12 @@ from medicine import run as medicine_run
 CURRENT_DIR = Path(__file__).parent
 
 
-def _load_data(filename):
-    """Load data from example dataset."""
-    file_path = CURRENT_DIR / "example_dataset" / filename
-    data = np.loadtxt(file_path, delimiter=",")
-    return data
-
-
 def main():
     """Run MEDICINE on example dataset."""
     # Load data
-    peak_amplitudes = _load_data("peak_amplitudes.csv")
-    peak_depths = _load_data("peak_depths.csv")
-    peak_times = _load_data("peak_times.csv")
+    peak_amplitudes = np.load("peak_amplitudes.csv")
+    peak_depths = np.load("peak_depths.csv")
+    peak_times = np.load("peak_times.csv")
 
     # Run MEDICINE and display output plots
     medicine_run.run_medicine(

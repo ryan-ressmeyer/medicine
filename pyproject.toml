@@ -35,7 +35,10 @@ classifiers = [
 ]
 
 [tool.setuptools]
-packages = ["medicine", "medicine_demos"]
+packages = ["medicine_demos"]
+
+[tool.setuptools.package-data]
+"medicine_demos" = ["example_dataset/*.csv"]
 
 [project.urls]
 homepage = "https://jazlab.github.io/medicine.github.io"
