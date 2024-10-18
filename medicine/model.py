@@ -105,6 +105,7 @@ class Dataset:
         times: np.ndarray,
         depths: np.ndarray,
         amplitudes: np.ndarray,
+        amplitude_threshold_quantile: float = 0.,
     ):
         """Constructor.
 
@@ -112,8 +113,31 @@ class Dataset:
             times: Array of times for each peak (in seconds).
             depths: Array of depths for each peak (in microns).
             amplitudes: Array of amplitudes for each peak.
+            amplitude_threshold_quantile: FLoat in [-1, 1]. Cutoff quantile for
+                peak amplitudes. If 0, no cutoff is applied and all peaks are
+                used. If > 0, then the smallest amplitude_threshold_quantile
+                fraction of amplitudes are ignored. If < 0, then the largest
+                amplitude_threshold_quantile fraction of amplitudes are ignored.
+                See "raw_raster_and_amplitudes.png" output figure for a
+                histogram of all amplitudes used by the model.
         """
-        print("\nConstructing Dataset instance")
+        print('\nConstructing Dataset instance')
+        
+        # Apply amplitude threshold
+        if amplitude_threshold_quantile > 0:
+            threshold = np.quantile(amplitudes, amplitude_threshold_quantile)
+            mask = amplitudes > threshold
+        elif amplitude_threshold_quantile < 0:
+            threshold = np.quantile(
+                amplitudes, 1 + amplitude_threshold_quantile)
+            mask = amplitudes < threshold
+        else:
+            mask = np.ones_like(amplitudes, dtype=bool)
+        times = times[mask]
+        depths = depths[mask]
+        amplitudes = amplitudes[mask]
+        
+        # Register data variables
         self._times = torch.from_numpy(times.astype(np.float32))
         self._num_samples = len(times)
         self._depths_raw = depths
@@ -144,9 +168,9 @@ class Dataset:
         """Sample batch of real data."""
         indices = np.random.randint(self._num_samples, size=batch_size)
         data = {
-            "times": self._times[indices],
-            "depths": self._depths_normalized[indices],
-            "amplitudes": self._amplitudes_normalized[indices],
+            'times': self._times[indices],
+            'depths': self._depths_normalized[indices],
+            'amplitudes': self._amplitudes_normalized[indices],
         }
         return data
 
@@ -166,11 +190,11 @@ class Dataset:
         """
         indices = np.random.randint(self._num_samples, size=batch_size)
         data = {
-            "times": self._times[indices],
-            "depths": torch.FloatTensor(batch_size).uniform_(
+            'times': self._times[indices],
+            'depths': torch.FloatTensor(batch_size).uniform_(
                 -motion_bound, 1 + motion_bound
             ),
-            "amplitudes": torch.FloatTensor(batch_size).uniform_(0, 1),
+            'amplitudes': torch.FloatTensor(batch_size).uniform_(0, 1),
         }
         return data
 
@@ -185,9 +209,9 @@ class Dataset:
             np.linspace(0, 1, grid_size),
         )
         data = {
-            "times": time * np.ones(grid_size * grid_size),
-            "depths": np.ravel(depths),
-            "amplitudes": np.ravel(amplitudes),
+            'times': time * np.ones(grid_size * grid_size),
+            'depths': np.ravel(depths),
+            'amplitudes': np.ravel(amplitudes),
         }
         data = {
             key: torch.from_numpy(value.astype(np.float32))
@@ -259,12 +283,12 @@ class MotionFunction(torch.nn.Module):
         """
         super(MotionFunction, self).__init__()
         print(
-            "\nConstructing MotionFunction instance with parameters:\n"
-            f"    bound_normalized = {bound_normalized}\n"
-            f"    time_range = {time_range}\n"
-            f"    time_bin_size = {time_bin_size}\n"
-            f"    time_kernel_width = {time_kernel_width}\n"
-            f"    num_depth_bins = {num_depth_bins}\n"
+            '\nConstructing MotionFunction instance with parameters:\n'
+            f'    bound_normalized = {bound_normalized}\n'
+            f'    time_range = {time_range}\n'
+            f'    time_bin_size = {time_bin_size}\n'
+            f'    time_kernel_width = {time_kernel_width}\n'
+            f'    num_depth_bins = {num_depth_bins}\n'
         )
         self._bound_normalized = bound_normalized
         self._time_range = time_range
@@ -292,9 +316,16 @@ class MotionFunction(torch.nn.Module):
         # convolution applications to remove edge effects.
         ones_input = torch.ones((1, 1, self._num_time_bins))
         self._conv_ones = torch.nn.functional.conv1d(
-            ones_input, self._time_kernel, padding="same"
+            ones_input, self._time_kernel, padding='same'
         )[0]
         self._tanh = torch.nn.Tanh()
+    
+    def to(self, device: torch.device) -> None:
+        """Move model to device."""
+        self._depth_levels = self._depth_levels.to(device)
+        self._time_kernel = self._time_kernel.to(device)
+        self._conv_ones = self._conv_ones.to(device)
+        super().to(device)
 
     def _get_kernel(self, time_kernel_width: float) -> torch.Tensor:
         """Get triangular kernel discretized by time_bin_size.
@@ -308,9 +339,9 @@ class MotionFunction(torch.nn.Module):
         """
         if time_kernel_width < self._time_bin_size:
             print(
-                f"time_kernel_width {time_kernel_width} is smaller than "
-                f"time_bin_size {self._time_bin_size}, so rounding up "
-                "smoothing kernel to one bin.\n"
+                f'time_kernel_width {time_kernel_width} is smaller than '
+                f'time_bin_size {self._time_bin_size}, so rounding up '
+                'smoothing kernel to one bin.\n'
             )
         kernel_slope = 0.5 * time_kernel_width / self._time_bin_size
         half_kernel = np.arange(1.0, 0.0, -1 / kernel_slope)
@@ -413,9 +444,9 @@ class ActivityNetwork(torch.nn.Module):
         """
         super(ActivityNetwork, self).__init__()
         print(
-            "\nConstructing ActivityNetwork instance with parameters:\n"
-            f"    hidden_features = {hidden_features}\n"
-            f"    activation = {activation}"
+            '\nConstructing ActivityNetwork instance with parameters:\n'
+            f'    hidden_features = {hidden_features}\n'
+            f'    activation = {activation}'
         )
         self._feature_frequencies = feature_frequencies
         in_features = 2 * (1 + len(self._feature_frequencies))
@@ -464,10 +495,10 @@ class Medicine(torch.nn.Module):
             epsilon: Small value to prevent logarithms from exploding.
         """
         super(Medicine, self).__init__()
-        print("\nConstructing Medicine instance")
+        print('\nConstructing Medicine instance')
 
-        self.add_module("motion_function", motion_function)
-        self.add_module("activity_network", activity_network)
+        self.add_module('motion_function', motion_function)
+        self.add_module('activity_network', activity_network)
         self._epsilon = epsilon
 
     def forward(
@@ -486,9 +517,9 @@ class Medicine(torch.nn.Module):
             spike_probability: Torch array of shape [batch_size] with values in
                 [0, 1].
         """
-        times = data_batch["times"]
-        depths = data_batch["depths"]
-        amplitudes = data_batch["amplitudes"]
+        times = data_batch['times']
+        depths = data_batch['depths']
+        amplitudes = data_batch['amplitudes']
         pred_motion = self.motion_function(times, depths)
         pred_motion += motion_noise * torch.randn_like(pred_motion)
         pred_depths = depths + pred_motion
@@ -528,6 +559,12 @@ class Medicine(torch.nn.Module):
         )
 
         return loss
+    
+    def to(self, device: torch.device) -> None:
+        """Move model to device."""
+        self.motion_function.to(device)
+        self.activity_network.to(device)
+        super().to(device)
 
 
 class Trainer:
@@ -571,6 +608,9 @@ class Trainer:
             lr=learning_rate,
         )
         self._losses = None
+        self._device = torch.device(
+            'cuda' if torch.cuda.is_available() else 'cpu')
+        self._medicine_model.to(self._device)
 
     def __call__(self):
         """Evaluate model on dataset."""
@@ -586,12 +626,22 @@ class Trainer:
             ) / self._motion_noise_steps
             motion_noise = max(remaining * self._initial_motion_noise, 0)
 
-            # Compute loss and gradients
+            # Sample real and fake data
             self._optimizer.zero_grad()
             data_real = self._dataset.sample_real(batch_size=self._batch_size)
             data_fake = self._dataset.sample_fake(
                 batch_size=self._batch_size, motion_bound=motion_bound
             )
+            
+            # Move data to GPU if necessary
+            data_real = {
+                key: value.to(self._device) for key, value in data_real.items()
+            }
+            data_fake = {
+                key: value.to(self._device) for key, value in data_fake.items()
+            }
+            
+            # Compute loss and backpropagate
             loss = self._medicine_model.loss(
                 data_real, data_fake, motion_noise=motion_noise
             )
@@ -603,10 +653,10 @@ class Trainer:
                     self._medicine_model.parameters(), self._grad_clip
                 )
             self._optimizer.step()
-            training_losses.append(float(loss.detach()))
+            training_losses.append(float(loss.cpu().detach()))
 
         self._losses = training_losses
-        print("\nFinished fitting motion estimation")
+        print('\nFinished fitting motion estimation')
 
     @property
     def medicine_model(self) -> Medicine:

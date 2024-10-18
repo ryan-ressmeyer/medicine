@@ -7,5 +7,9 @@
 **.idea**
 **/_gitignore**
 medicine_demos/medicine_output
+medicine_demos/tmp_dataset
+medicine_neuro.egg-info
+dist
+build
 .jekyll-cache
 _site

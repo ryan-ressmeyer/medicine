@@ -27,6 +27,7 @@ def run_medicine(
     time_kernel_width: float = 30,
     activity_network_hidden_features: tuple = (256, 256),
     num_depth_bins: int = 2,
+    amplitude_threshold_quantile: float = 0.,
     batch_size: int = 4096,
     training_steps: int = 10000,
     initial_motion_noise: float = 0.1,
@@ -50,6 +51,13 @@ def run_medicine(
         activity_network_hidden_features: Tuple of hidden features for the
             activity network.
         num_depth_bins: Number of depth bins for motion estimation.
+        amplitude_threshold_quantile: FLoat in [-1, 1]. Cutoff quantile for peak
+            amplitudes. If 0, no cutoff is applied and all peaks are used. If >
+            0, then the smallest amplitude_threshold_quantile fraction of
+            amplitudes are ignored. If < 0, then the largest
+            amplitude_threshold_quantile fraction of amplitudes are ignored. See
+            "raw_raster_and_amplitudes.png" output figure for a histogram of all
+            amplitudes used by the model.
         batch_size: Batch size for training.
         training_steps: Number of training steps.
         initial_motion_noise: Initial motion noise.
@@ -64,10 +72,10 @@ def run_medicine(
         trainer: Trainer object after running motion estimation.
     """
     # Create and clear output_dir
-    print(f"\nCreating output_dir {output_dir}")
+    print(f'\nCreating output_dir {output_dir}')
     output_dir = Path(output_dir)
     if output_dir.exists():
-        print(f"Warning: {output_dir} already exists")
+        print(f'Warning: {output_dir} already exists')
     output_dir.mkdir(exist_ok=True, parents=True)
 
     # Save parameters
@@ -82,14 +90,14 @@ def run_medicine(
         training_steps=training_steps,
         initial_motion_noise=initial_motion_noise,
         motion_noise_steps=motion_noise_steps,
-        optimizer=f"{optimizer.__module__}.{optimizer.__name__}",
+        optimizer=f'{optimizer.__module__}.{optimizer.__name__}',
         learning_rate=learning_rate,
         epsilon=epsilon,
         plot_figures=plot_figures,
     )
-    parameters_path = output_dir / "medicine_parameters.json"
-    print(f"\nSaving parameters to {output_dir}")
-    json.dump(parameters, open(parameters_path, "w"))
+    parameters_path = output_dir / 'medicine_parameters.json'
+    print(f'\nSaving parameters to {output_dir}')
+    json.dump(parameters, open(parameters_path, 'w'))
 
     # Plot raster and amplitudes if necessary
     if plot_figures:
@@ -102,6 +110,7 @@ def run_medicine(
         times=peak_times,
         depths=peak_depths,
         amplitudes=peak_amplitudes,
+        amplitude_threshold_quantile=amplitude_threshold_quantile,
     )
 
     # Create motion_function
@@ -164,10 +173,10 @@ def run_medicine(
     )
 
     # Save motion estimation results
-    print(f"Saving outputs to {output_dir}")
-    np.save(output_dir / "time_bins.npy", time_bins)
-    np.save(output_dir / "depth_bins.npy", depth_bins)
-    np.save(output_dir / "motion.npy", pred_motion)
+    print(f'Saving outputs to {output_dir}')
+    np.save(output_dir / 'time_bins.npy', time_bins)
+    np.save(output_dir / 'depth_bins.npy', depth_bins)
+    np.save(output_dir / 'motion.npy', pred_motion)
 
     # Plot motion estimation results if necessary
     if plot_figures:

@@ -23,7 +23,8 @@ from medicine import run as medicine_run
 def main():
     """Run MEDICINE on example dataset."""
     # Load data
-    dataset_dir = Path("./example_dataset")
+    # dataset_dir = Path("./example_dataset")
+    dataset_dir = Path("./tmp_dataset")
     peak_amplitudes = np.load(dataset_dir / "peak_amplitudes.npy")
     peak_depths = np.load(dataset_dir / "peak_depths.npy")
     peak_times = np.load(dataset_dir / "peak_times.npy")
@@ -34,8 +35,13 @@ def main():
         peak_depths=peak_depths,
         peak_times=peak_times,
         output_dir="medicine_output",
+        num_depth_bins=1,
+        # training_steps=2000,
+        # motion_noise_steps=1000,
         training_steps=2000,
         motion_noise_steps=1000,
+        time_kernel_width=50,
+        amplitude_threshold_quantile=-0.5
     )
     plt.show()
 

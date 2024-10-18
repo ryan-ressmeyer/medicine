@@ -1,0 +1,44 @@
+[project]
+name = "medicine-neuro"
+version = "1.14"
+description = "MEDICINE: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "torch >= 2.5.0",
+  "seaborn >= 0.13.2",
+  "scipy >= 1.14.1",
+  "tqdm >= 4.66.2",
+]
+license = {file = "LICENSE.txt"}
+keywords = [
+  "neuroscience",
+  "neurophysiology",
+  "spike sorting",
+  "machine learning",
+  "motion",
+  "python",
+]
+authors = [
+  {email = "nwatters@mit.edu"},
+  {name = "Nick Watters"},
+]
+maintainers = [
+  {name = "Nick Watters", email = "nwatters@mit.edu"}
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+]
+
+[tool.setuptools]
+packages = ["medicine", "medicine_demos"]
+
+[project.urls]
+homepage = "https://jazlab.github.io/medicine.github.io"
+documentation = "https://jazlab.github.io/medicine.github.io"
+repository = "https://github.com/jazlab/medicine.github.io"
+pypi = "https://pypi.org/project/medicine-neuro"

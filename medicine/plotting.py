@@ -37,7 +37,7 @@ def _correct_motion_on_peaks(
     f = scipy_interpolate.RegularGridInterpolator(
         (time_bins, depth_bins),
         motion,
-        method="linear",
+        method='linear',
         bounds_error=False,
         fill_value=None,
     )
@@ -57,8 +57,8 @@ def plot_motion_correction(
     stride: int = 30,
     alpha: float = 0.75,
     lw: float = 1,
-    colormap: str = "winter",
-    motion_color: str = "r",
+    colormap: str = 'winter',
+    motion_color: str = 'r',
 ) -> plt.Figure:
     """Plot raster-map before and after motion correction.
 
@@ -92,8 +92,8 @@ def plot_motion_correction(
     # Function for plotting neural activity
     def _plot_neural_activity(ax, times, depths):
         plot = ax.scatter(times, depths, s=1, c=colors, alpha=alpha)
-        ax.set_xlabel("time (s)", fontsize=12)
-        ax.set_ylabel("depth from probe tip ($\mu$m)", fontsize=12)
+        ax.set_xlabel('time (s)', fontsize=12)
+        ax.set_ylabel('depth from probe tip ($\mu$m)', fontsize=12)
         return plot
 
     # Get colors and create figure
@@ -103,7 +103,7 @@ def plot_motion_correction(
 
     # Plot raw peaks
     _ = _plot_neural_activity(axes[0], peak_times, peak_depths)
-    axes[0].set_title("Spikes")
+    axes[0].set_title('Spikes')
 
     # Plot raw peaks with motion correction traces
     _ = _plot_neural_activity(axes[1], peak_times, peak_depths)
@@ -114,8 +114,8 @@ def plot_motion_correction(
         lw=lw,
         color=motion_color,
     )
-    axes[1].yaxis.set_ticks_position("both")
-    axes[1].set_title("Spikes with Motion Estimation")
+    axes[1].yaxis.set_ticks_position('both')
+    axes[1].set_title('Spikes with Motion Estimation')
 
     # Plot motion-corrected peaks
     peak_depths_corrected = _correct_motion_on_peaks(
@@ -127,8 +127,8 @@ def plot_motion_correction(
     )
     plot = _plot_neural_activity(axes[2], peak_times, peak_depths_corrected)
     fig.colorbar(plot, ax=axes[2])
-    axes[2].yaxis.set_ticks_position("both")
-    axes[2].set_title("Spikes After Motion Correction")
+    axes[2].yaxis.set_ticks_position('both')
+    axes[2].set_title('Spikes After Motion Correction')
 
     return fig
 
@@ -161,28 +161,28 @@ def plot_raster_and_amplitudes(
     max_peak_amp = max(peak_amplitudes)
 
     # Scatterplot peaks
-    cmap = plt.get_cmap("winter")
+    cmap = plt.get_cmap('winter')
     norm = matplotlib_colors.Normalize(
         vmin=min_peak_amp, vmax=max_peak_amp, clip=True
     )
     colors = cmap(norm(peak_amplitudes))
     axes[0].scatter(peak_times, peak_depths, s=1, c=colors, alpha=0.5)
-    axes[0].set_xlabel("time (s)", fontsize=12)
-    axes[0].set_ylabel("depth from probe tip ($\mu$m)", fontsize=12)
-    axes[0].set_title("Peaks over session")
+    axes[0].set_xlabel('time (s)', fontsize=12)
+    axes[0].set_ylabel('depth from probe tip ($\mu$m)', fontsize=12)
+    axes[0].set_title('Peaks over session')
 
     # Histogram peak amplitudes
     axes[1].hist(peak_amplitudes, bins=30)
-    axes[1].set_xlabel("Amplitude")
-    axes[1].set_ylabel("Count")
-    axes[1].set_title("Histogram of peak amplitudes")
+    axes[1].set_xlabel('Amplitude')
+    axes[1].set_ylabel('Count')
+    axes[1].set_title('Histogram of peak amplitudes')
 
     fig.tight_layout()
 
     # Save figure
     if figure_dir is not None:
-        save_path = figure_dir / "raw_raster_and_amplitudes.png"
-        print(f"Saving figure to {save_path}")
+        save_path = figure_dir / 'raw_raster_and_amplitudes.png'
+        print(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -203,14 +203,14 @@ def plot_training_loss(
     """
     fig, ax = plt.subplots(figsize=(6, 3))
     ax.plot(losses)
-    ax.set_title("Loss throughout training")
-    ax.set_xlabel("Training step")
-    ax.set_ylabel("Loss")
+    ax.set_title('Loss throughout training')
+    ax.set_xlabel('Training step')
+    ax.set_ylabel('Loss')
 
     # Save figure
     if figure_dir is not None:
-        save_path = figure_dir / "training_loss.png"
-        print(f"Saving figure to {save_path}")
+        save_path = figure_dir / 'training_loss.png'
+        print(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -263,10 +263,10 @@ def plot_depth_amplitude_distributions(
         extent = tuple(
             list(dataset.amplitude_range) + list(dataset.depth_range)
         )
-        ax.imshow(pred_distrib[::-1], extent=extent, aspect="auto")
-        ax.set_title(f"Model, Time = {int(np.round(time))} sec")
-        ax.set_xlabel("Amplitude")
-        ax.set_ylabel("Depth from probe tip ($\mu$m)")
+        ax.imshow(pred_distrib[::-1], extent=extent, aspect='auto')
+        ax.set_title(f'Model, Time = {int(np.round(time))} sec')
+        ax.set_xlabel('Amplitude')
+        ax.set_ylabel('Depth from probe tip ($\mu$m)')
 
     # Plot data distribution
     loc_range = dataset.depth_range
@@ -285,24 +285,24 @@ def plot_depth_amplitude_distributions(
                 y=depths,
                 fill=True,
                 levels=100,
-                cmap="winter",
+                cmap='winter',
                 gridsize=grid_size,
                 thresh=0.01,
             )
         except:
-            print("Error happened in sns.kdeplot")
+            print('Error happened in sns.kdeplot')
         ax.set_xlim(amp_range)
         ax.set_ylim(loc_range)
-        ax.set_title(f"Data, Time = {int(np.round(time))} sec")
-        ax.set_xlabel("Amplitude")
-        ax.set_ylabel("Depth from probe tip ($\mu$m)")
+        ax.set_title(f'Data, Time = {int(np.round(time))} sec')
+        ax.set_xlabel('Amplitude')
+        ax.set_ylabel('Depth from probe tip ($\mu$m)')
 
     fig.tight_layout()
 
     # Save figure
     if figure_dir is not None:
-        save_path = figure_dir / "depth_amplitude_distributions.png"
-        print(f"Saving figure to {save_path}")
+        save_path = figure_dir / 'depth_amplitude_distributions.png'
+        print(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -386,15 +386,15 @@ def plot_predicted_motion(
 
     # Plot predicted motion
     fig, ax = plt.subplots(figsize=(3, 6))
-    ax.plot(times, depths + pred_motion, c="r")
-    ax.set_xlabel("Time (sec)")
-    ax.set_ylabel("Predicted deviation ($\mu$m)")
-    ax.set_title("Predicted motion")
+    ax.plot(times, depths + pred_motion, c='r')
+    ax.set_xlabel('Time (sec)')
+    ax.set_ylabel('Predicted deviation ($\mu$m)')
+    ax.set_title('Predicted motion')
 
     # Save figure
     if figure_dir is not None:
-        save_path = figure_dir / "predicted_motion.png"
-        print(f"Saving figure to {save_path}")
+        save_path = figure_dir / 'predicted_motion.png'
+        print(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
@@ -431,12 +431,12 @@ def plot_motion_corrected_raster(
         depth_bins=depths[0],
         motion=pred_motion,
     )
-    _ = fig.suptitle("Motion correction", fontsize=24)
+    _ = fig.suptitle('Motion correction', fontsize=24)
 
     # Save figure
     if figure_dir is not None:
-        save_path = figure_dir / "corrected_motion_raster.png"
-        print(f"Saving figure to {save_path}")
+        save_path = figure_dir / 'corrected_motion_raster.png'
+        print(f'Saving figure to {save_path}')
         fig.savefig(save_path)
 
     return fig
