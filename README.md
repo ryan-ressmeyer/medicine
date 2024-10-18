@@ -63,7 +63,7 @@ method](medicine/run.py#L20):
   after application of this bound, so we recommend being liberal with the bound.
   In all of our recording sessions, the value 800 worked well. Adjusting this
   parameter is unlikely to improve results unless you have very large-magnitude
-  motion. 
+  motion.
 * `time_bin_size`: Float, default 1. Temporal resolution of motion estimation,
   in the same units as the spike times (typically seconds). The motion array
   will discretize the total session duration into temporal bins of this size.
