@@ -148,8 +148,8 @@ year = {2024}
 
 ## MEDICINE Website
 
-The [MEDICINE website](https://jazlab.github.io/medicine.github.io/) is a
-[GitHub Pages](https://pages.github.com/) website with a [Slate
+The [MEDICINE website](https://jazlab.github.io/medicine/) is a [GitHub
+Pages](https://pages.github.com/) website with a [Slate
 theme](https://github.com/pages-themes/slate). The website is generated from
 this [`README.md`](README.md) with the settings in [`_config.yml`](_config.yml)
 and the Ruby dependencies in [`Gemfile`](Gemfile).
