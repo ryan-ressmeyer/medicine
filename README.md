@@ -186,9 +186,9 @@ This has all code and instructions for replicating our results.
 ## Contact and Support
 
 Please see
-[`CONTRIBUTING.md`](https://github.com/jazlab/medicine/blob/main/CONTRIBUTING.md)
-for information about support. Please email Nick Watters at nwatters@mit.edu
-with questions and feedback.
+[CONTRIBUTING.md](https://github.com/jazlab/medicine/blob/main/CONTRIBUTING.md)
+for information about support. Please email Nick Watters at
+[nwatters@mit.edu](mailto:nwatters@mit.edu) with questions and feedback.
 
 ## Reference
 
