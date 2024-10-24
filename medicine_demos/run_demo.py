@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
 
-from medicine import run as medicine_run
+from medicine import run as run_medicine
 
 CURRENT_DIR = Path(__file__).parent
 
@@ -31,7 +31,7 @@ def main():
     peak_times = np.load(example_dataset_dir / "peak_times.npy")
 
     # Run MEDICINE and display output plots
-    medicine_run.run_medicine(
+    run_medicine.run_medicine(
         peak_amplitudes=peak_amplitudes,
         peak_depths=peak_depths,
         peak_times=peak_times,
