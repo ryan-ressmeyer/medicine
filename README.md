@@ -180,7 +180,7 @@ resolutions:
 ## Reproducing Our Results
 
 To reproduce the results in our paper, please see
-[https://jazlab.github.io/medicine_paper/](https://jazlab.github.io/medicine_paper/).
+[https://github.com/jazlab/medicine_paper](https://github.com/jazlab/medicine_paper).
 This has all code and instructions for replicating our results.
 
 ## Contact and Support
