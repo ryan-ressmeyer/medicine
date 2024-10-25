@@ -114,12 +114,12 @@ recording_motion_corrected = InterpolateMotionRecording(
 # this would entail `sorters.run_sorter(do_correction=False, ...)`.
 ```
 
-### Kilosort Integration
+### Kilosort4 Integration
 
-If you are using Kilosort for spike-sorting, we recommend using a SpikeInterface
+If you are using Kilosort4 for spike-sorting, we recommend using a SpikeInterface
 pipeline to run MEDiCINe as shown above. However, if you prefer to use Kilosort4
 directly without SpikeInterface, you may still use MEDiCINe for motion
-correction. The easiest way to do this is to modify Kilosort's
+correction. The easiest way to do this is to modify Kilosort4's
 [datashift.py](https://github.com/MouseLand/Kilosort/blob/main/kilosort/datashift.py)
 file directly. Using the currently most recent Kilsort4 version 4.0.19, this
 entails overriding the `run()` function in `datashift.py` as follows:
