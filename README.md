@@ -46,9 +46,10 @@ for more details.
 
 Once you have installed the `medicine-neuro` package, you can use it to do
 motion correction in a SpikeInterface data processing pipeline. SpikeInterface
-peak detection methods require the `numba` package (`$ pip install numba`). Here
-is an example SpikeInterface pipeline with peak extraction and motion correction
-using MEDiCINe motion estimation:
+peak detection methods require the `numba` package (`$ pip install numba`).
+Using the currently most recent SpikeInterface version 0.101.2, here is an
+example SpikeInterface pipeline with peak extraction and motion correction using
+MEDiCINe motion estimation:
 ```
 from pathlib import Path
 from medicine import run as run_medicine
@@ -115,7 +116,50 @@ recording_motion_corrected = InterpolateMotionRecording(
 
 ### Kilosort Integration
 
-To-Do.
+If you are using Kilosort for spike-sorting, we recommend using a SpikeInterface
+pipeline to run MEDiCINe as shown above. However, if you prefer to use Kilosort4
+directly without SpikeInterface, you may still use MEDiCINe for motion
+correction. The easiest way to do this is to modify Kilosort's
+[datashift.py](https://github.com/MouseLand/Kilosort/blob/main/kilosort/datashift.py)
+file directly. Using the currently most recent Kilsort4 version 4.0.19, this
+entails overriding the `run()` function in `datashift.py` as follows:
+
+```
+from medicine import run as run_medicine
+
+def run(ops, bfile, device=torch.device('cuda'), progress_bar=None,
+        clear_cache=False):
+
+  # Extract spikes
+  st, _, ops  = spikedetect.run(
+      ops, bfile, device=device, progress_bar=progress_bar,
+      clear_cache=clear_cache,
+    )
+
+  # Run MEDiCINe to estimate motion
+  medicine_output_dir = ops['data_dir'] / 'medicine_output'
+  run_medicine.run_medicine(
+      peak_amplitudes=st[:, 2],
+      peak_depths=st[:, 1],
+      peak_times=st[:, 0],
+      output_dir=medicine_output_dir,
+      training_steps=2000,
+  )
+  motion = np.mean(np.load(medicine_output_dir / 'motion.npy'), axis=1)
+  dshift_indices = np.linspace(0, len(motion), ops['Nbatches'] + 1)
+  dshift_indices = np.floor(dshift_indices).astype(int)[:-1]
+  dshift = motion[dshift_indices]
+
+  # Continue Kilosort processing
+  ops['yblk'] = np.array([-1])
+  ops['dshift'] = dshift
+  xp = np.vstack((ops['xc'],ops['yc'])).T
+  Kxx = torch.from_numpy(kernel2D(xp, xp, ops['sig_interp']))
+  iKxx = torch.linalg.inv(Kxx + 0.01 * torch.eye(Kxx.shape[0]))
+  ops['iKxx'] = iKxx.to(device)
+
+  return ops, st
+```
 
 ### Hyperparameters
 
