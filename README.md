@@ -129,7 +129,6 @@ from medicine import run as run_medicine
 
 def run(ops, bfile, device=torch.device('cuda'), progress_bar=None,
         clear_cache=False):
-
     # Extract spikes
     st, _, ops  = spikedetect.run(
         ops, bfile, device=device, progress_bar=progress_bar,
