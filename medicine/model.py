@@ -673,3 +673,7 @@ class Trainer:
     @property
     def losses(self) -> list[float]:
         return self._losses
+
+    @property
+    def device(self) -> torch.device:
+        return self._device

@@ -220,6 +220,7 @@ def plot_training_loss(
 def plot_depth_amplitude_distributions(
     medicine_model: model.Medicine,
     dataset: model.Dataset,
+    device: torch.device,
     figure_dir: None | str = None,
     grid_size: int = 100,
     num_timepoints: int = 5,
@@ -259,7 +260,8 @@ def plot_depth_amplitude_distributions(
     # Plot model-predicted distribution
     for ax, time in zip(axes_model, time_slices):
         uniform_batch = dataset.sample_grid(time=time, grid_size=grid_size)
-        pred_distrib = medicine_model(uniform_batch).detach().numpy()
+        uniform_batch = {k: v.to(device) for k, v in uniform_batch.items()}
+        pred_distrib = medicine_model(uniform_batch).cpu().detach().numpy()
         pred_distrib = np.reshape(pred_distrib, (grid_size, grid_size))
         extent = tuple(
             list(dataset.amplitude_range) + list(dataset.depth_range)
@@ -312,6 +314,7 @@ def plot_depth_amplitude_distributions(
 def _get_predicted_motion(
     medicine_model: model.Medicine,
     dataset: model.Dataset,
+    device: torch.device,
     num_depth_bins: int = 15,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Get predicted motion over time and depth.
@@ -319,6 +322,7 @@ def _get_predicted_motion(
     Args:
         dataset: Dataset object.
         medicine_model: Trained Medicine model.
+        device: Torch device.
         num_depth_bins: Number of depth bins.
 
     Returns:
@@ -342,15 +346,15 @@ def _get_predicted_motion(
     depths = np.repeat(depth_bins[None, :], num_time_bins, axis=0)
 
     # Convert times and depths to torch
-    times_torch = torch.from_numpy(times.astype(np.float32))
-    depths_torch = torch.from_numpy(depths.astype(np.float32))
+    times_torch = torch.from_numpy(times.astype(np.float32)).to(device)
+    depths_torch = torch.from_numpy(depths.astype(np.float32)).to(device)
 
     # Get predicted motion of shape [num_time_bins, num_depth_bins]
     times_torch_flat = times_torch.flatten()
     depths_torch_flat = depths_torch.flatten()
     pred_motion_flat = medicine_model.motion_function(
         times_torch_flat, depths_torch_flat
-    )
+    ).cpu()
     pred_motion = pred_motion_flat.reshape(num_time_bins, num_depth_bins)
     pred_motion = -1 * pred_motion.detach().numpy()
     pred_motion *= dataset.depth_range[1] - dataset.depth_range[0]
@@ -366,6 +370,7 @@ def _get_predicted_motion(
 def plot_predicted_motion(
     medicine_model: model.Medicine,
     dataset: model.Dataset,
+    device: torch.device,
     num_depth_bins: int = 15,
     figure_dir: None | str = None,
 ) -> plt.Figure:
@@ -374,6 +379,7 @@ def plot_predicted_motion(
     Args:
         medicine_model: Trained Medicine model.
         dataset: Dataset object.
+        device: Torch device.
         num_depth_bins: Number of depth bins.
         figure_dir: Directory to save figure to.
 
@@ -382,7 +388,7 @@ def plot_predicted_motion(
     """
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        medicine_model, dataset, num_depth_bins=num_depth_bins
+        medicine_model, dataset, device=device, num_depth_bins=num_depth_bins
     )
 
     # Plot predicted motion
@@ -404,6 +410,7 @@ def plot_predicted_motion(
 def plot_motion_corrected_raster(
     dataset: model.Dataset,
     medicine_model: model.Medicine,
+    device: torch.device,
     num_depth_bins: int = 15,
     figure_dir: None | str = None,
 ) -> plt.Figure:
@@ -412,6 +419,7 @@ def plot_motion_corrected_raster(
     Args:
         dataset: Dataset object.
         medicine_model: Trained Medicine model.
+        device: Torch device.
         num_depth_bins: Number of depth bins.
         figure_dir: Directory to save figure to.
 
@@ -420,7 +428,7 @@ def plot_motion_corrected_raster(
     """
     # Get predicted motion
     times, depths, pred_motion = _get_predicted_motion(
-        medicine_model, dataset, num_depth_bins=num_depth_bins
+        medicine_model, dataset, device=device, num_depth_bins=num_depth_bins
     )
 
     # Plot new motion correction
@@ -464,11 +472,12 @@ def run_post_motion_estimation_plots(
 
     # Run and save plots
     _ = plot_training_loss(losses, figure_dir=figure_dir)
-
     _ = plot_depth_amplitude_distributions(
-        medicine_model, dataset, figure_dir=figure_dir
+        medicine_model, dataset, device=trainer.device, figure_dir=figure_dir
     )
-    _ = plot_predicted_motion(medicine_model, dataset, figure_dir=figure_dir)
+    _ = plot_predicted_motion(
+        medicine_model, dataset, device=trainer.device, figure_dir=figure_dir
+    )
     _ = plot_motion_corrected_raster(
-        dataset, medicine_model, figure_dir=figure_dir
+        dataset, medicine_model, device=trainer.device, figure_dir=figure_dir
     )

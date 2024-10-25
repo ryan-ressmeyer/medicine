@@ -165,7 +165,9 @@ def run_medicine(
     depths = np.repeat(depth_bins[None, :], num_time_bins, axis=0)
     times_torch = torch.from_numpy(times.astype(np.float32)).flatten()
     depths_torch = torch.from_numpy(depths.astype(np.float32)).flatten()
-    pred_motion_flat = motion_function(times_torch, depths_torch)
+    times_torch = times_torch.to(trainer.device)
+    depths_torch = depths_torch.to(trainer.device)
+    pred_motion_flat = motion_function(times_torch, depths_torch).cpu()
     pred_motion = pred_motion_flat.reshape(num_time_bins, num_depth_bins)
     pred_motion = -1 * pred_motion.detach().numpy()
     pred_motion *= depth_range[1] - depth_range[0]
