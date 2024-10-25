@@ -289,3 +289,9 @@ instructions](https://docs.github.com/en/pages/setting-up-a-github-pages-site-wi
 Then modify this
 [`README.md`](https://github.com/jazlab/medicine/blob/main/README.md) and test
 deploy to view the changes before committing.
+
+## MEDiCINe Package
+
+For packaging and registering releases of the `medicine-neuro` package on PyPI,
+consult the [Python user guide for packaging
+projects](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
