@@ -1,4 +1,4 @@
-# MEDiCINe: Motion Estimation by DIstributional Contrastive Inference for NEurophysioloy
+# MEDiCINe: Motion Estimation by Distributional Contrastive Inference for Neurophysioloy
 
 ## Introduction
 
@@ -44,11 +44,11 @@ for more details.
 
 ### SpikeInterface Integration
 
-Once you have installed MEDiCINe, you can use it to do motion correction in a
-SpikeInterface data processing pipeline. SpikeInterface peak detection methods
-require the `numba` package (`$ pip install numba`). Here is an example
-SpikeInterface pipeline with peak extraction and motion correction using
-MEDiCINe motion estimation:
+Once you have installed the `medicine-neuro` package, you can use it to do
+motion correction in a SpikeInterface data processing pipeline. SpikeInterface
+peak detection methods require the `numba` package (`$ pip install numba`). Here
+is an example SpikeInterface pipeline with peak extraction and motion correction
+using MEDiCINe motion estimation:
 ```
 from pathlib import Path
 from medicine import run as run_medicine
