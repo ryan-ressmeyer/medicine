@@ -66,17 +66,17 @@ recording = ...
 
 # Detect, extract, and localize peaks, such as with the following pipeline
 node_detect = detect_peak_methods['locally_exclusive'](
-  recording, detect_threshold=10)
+    recording, detect_threshold=10)
 node_extract = ExtractDenseWaveforms(
-  recording, parents=[node_detect], ms_before=0.1, ms_after=0.3)
+    recording, parents=[node_detect], ms_before=0.1, ms_after=0.3)
 node_localize = localize_peak_methods['monopolar_triangulation'](
     recording, parents=[node_detect, node_extract], return_output=True)
 peaks, peak_locations = run_node_pipeline(
-  recording,
-  [node_detect, node_extract, node_localize],
-  dict(chunk_duration='1s', n_jobs=-1, progress_bar=True),
-  job_name='detect_and_localize',
-  squeeze_output=False,
+    recording,
+    [node_detect, node_extract, node_localize],
+    dict(chunk_duration='1s', n_jobs=-1, progress_bar=True),
+    job_name='detect_and_localize',
+    squeeze_output=False,
 )
 
 # Create directory to store MEDiCINe outputs for this recording
@@ -85,10 +85,10 @@ medicine_output_dir.mkdir(parents=True, exist_ok=True)
 
 # Run MEDiCINe to estimate motion
 run_medicine.run_medicine(
-  peak_amplitudes=peaks['amplitude'],
-  peak_depths=peak_locations['y'],
-  peak_times=peaks['sample_index'] / recording.get_sampling_frequency(),
-  output_dir=medicine_output_dir,
+    peak_amplitudes=peaks['amplitude'],
+    peak_depths=peak_locations['y'],
+    peak_times=peaks['sample_index'] / recording.get_sampling_frequency(),
+    output_dir=medicine_output_dir,
 )
 
 # Load motion estimated by MEDiCINe
@@ -98,14 +98,14 @@ depth_bins = np.load(medicine_output_dir / 'depth_bins.npy')
 
 # Use interpolation to correct for motion estimated by MEDiCINe
 motion_object = motion_utils.Motion(
-  displacement=motion,
-  temporal_bins_s=time_bins,
-  spatial_bins_um=depth_bins,
+    displacement=motion,
+    temporal_bins_s=time_bins,
+    spatial_bins_um=depth_bins,
 )
 recording_motion_corrected = InterpolateMotionRecording(
-  recording,
-  motion_object,
-  border_mode='force_extrapolate',
+    recording,
+    motion_object,
+    border_mode='force_extrapolate',
 )
 
 # Continue with spike sorting or other processing on recording_motion_corrected.
@@ -130,35 +130,35 @@ from medicine import run as run_medicine
 def run(ops, bfile, device=torch.device('cuda'), progress_bar=None,
         clear_cache=False):
 
-  # Extract spikes
-  st, _, ops  = spikedetect.run(
-      ops, bfile, device=device, progress_bar=progress_bar,
-      clear_cache=clear_cache,
+    # Extract spikes
+    st, _, ops  = spikedetect.run(
+        ops, bfile, device=device, progress_bar=progress_bar,
+        clear_cache=clear_cache,
     )
 
-  # Run MEDiCINe to estimate motion
-  medicine_output_dir = ops['data_dir'] / 'medicine_output'
-  run_medicine.run_medicine(
-      peak_amplitudes=st[:, 2],
-      peak_depths=st[:, 1],
-      peak_times=st[:, 0],
-      output_dir=medicine_output_dir,
-      training_steps=2000,
-  )
-  motion = np.mean(np.load(medicine_output_dir / 'motion.npy'), axis=1)
-  dshift_indices = np.linspace(0, len(motion), ops['Nbatches'] + 1)
-  dshift_indices = np.floor(dshift_indices).astype(int)[:-1]
-  dshift = motion[dshift_indices]
+    # Run MEDiCINe to estimate motion
+    medicine_output_dir = ops['data_dir'] / 'medicine_output'
+    run_medicine.run_medicine(
+        peak_amplitudes=st[:, 2],
+        peak_depths=st[:, 1],
+        peak_times=st[:, 0],
+        output_dir=medicine_output_dir,
+        training_steps=2000,
+    )
+    motion = np.mean(np.load(medicine_output_dir / 'motion.npy'), axis=1)
+    dshift_indices = np.linspace(0, len(motion), ops['Nbatches'] + 1)
+    dshift_indices = np.floor(dshift_indices).astype(int)[:-1]
+    dshift = motion[dshift_indices]
 
-  # Continue Kilosort processing
-  ops['yblk'] = np.array([-1])
-  ops['dshift'] = dshift
-  xp = np.vstack((ops['xc'],ops['yc'])).T
-  Kxx = torch.from_numpy(kernel2D(xp, xp, ops['sig_interp']))
-  iKxx = torch.linalg.inv(Kxx + 0.01 * torch.eye(Kxx.shape[0]))
-  ops['iKxx'] = iKxx.to(device)
+    # Continue Kilosort processing
+    ops['yblk'] = np.array([-1])
+    ops['dshift'] = dshift
+    xp = np.vstack((ops['xc'],ops['yc'])).T
+    Kxx = torch.from_numpy(kernel2D(xp, xp, ops['sig_interp']))
+    iKxx = torch.linalg.inv(Kxx + 0.01 * torch.eye(Kxx.shape[0]))
+    ops['iKxx'] = iKxx.to(device)
 
-  return ops, st
+    return ops, st
 ```
 
 ### Hyperparameters
