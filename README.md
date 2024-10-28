@@ -27,7 +27,8 @@ of the model:
 ### Getting Started
 
 We recomend using a virtual environment (e.g. conda or pipenv) to manage
-dependencies. Once in a virtual environment, install MEDiCINe with:
+dependencies. Once in a virtual environment with python version at least 3.9.6,
+install MEDiCINe with:
 ```
 pip install medicine-neuro
 ```
@@ -116,10 +117,10 @@ recording_motion_corrected = InterpolateMotionRecording(
 
 ### Kilosort4 Integration
 
-If you are using Kilosort4 for spike-sorting, we recommend using a SpikeInterface
-pipeline to run MEDiCINe as shown above. However, if you prefer to use Kilosort4
-directly without SpikeInterface, you may still use MEDiCINe for motion
-correction. The easiest way to do this is to modify Kilosort4's
+If you are using Kilosort4 for spike-sorting, we recommend using a
+SpikeInterface pipeline to run MEDiCINe as shown above. However, if you prefer
+to use Kilosort4 directly without SpikeInterface, you may still use MEDiCINe for
+motion correction. The easiest way to do this is to modify Kilosort4's
 [datashift.py](https://github.com/MouseLand/Kilosort/blob/main/kilosort/datashift.py)
 file directly. Using the currently most recent Kilsort4 version 4.0.19, this
 entails overriding the `run()` function in `datashift.py` as follows:

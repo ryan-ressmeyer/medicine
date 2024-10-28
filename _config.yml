@@ -10,5 +10,5 @@ titles_from_headings:
   strip_title: true
   collections: false
 
-title: MEDICINE
-description: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology
+title: MEDiCINe
+description: Motion Estimation by Distributional Contrastive Inference for Neurophysiology

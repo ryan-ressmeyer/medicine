@@ -1,7 +1,7 @@
 [project]
 name = "medicine-neuro"
 version = "1.4"
-description = "MEDICINE: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology."
+description = "MEDiCINe: Motion Estimation by Distributional Contrastive Inference for Neurophysiology."
 readme = "README.md"
 requires-python = ">=3.9.6"
 dependencies = [
