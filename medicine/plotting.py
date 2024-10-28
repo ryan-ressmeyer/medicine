@@ -266,7 +266,9 @@ def plot_depth_amplitude_distributions(
         extent = tuple(
             list(dataset.amplitude_range) + list(dataset.depth_range)
         )
-        ax.imshow(pred_distrib[::-1], extent=extent, aspect="auto")
+        ax.imshow(
+            pred_distrib[::-1], extent=extent, cmap="plasma", aspect="auto"
+        )
         ax.set_title(f"Model, Time = {int(np.round(time))} sec")
         ax.set_xlabel("Amplitude")
         ax.set_ylabel("Depth from probe tip ($\mu$m)")
