@@ -30,6 +30,7 @@ to facilitate this classification, i.e. to stabilize the activity over time.
 """
 
 import math
+from typing import Optional
 
 import numpy as np
 import torch
@@ -45,7 +46,7 @@ class MLP(torch.nn.Module):
         self,
         in_features: int,
         layer_features: list[int],
-        activation: None | torch.nn.Module = None,
+        activation: Optional[torch.nn.Module] = None,
     ):
         """Create MLP module.
 
@@ -433,7 +434,7 @@ class ActivityNetwork(torch.nn.Module):
     def __init__(
         self,
         hidden_features: tuple = (256, 256),
-        activation: None | torch.nn.Module = None,
+        activation: Optional[torch.nn.Module] = None,
         feature_frequencies: tuple = (1, 2, 4, 8, 16, 32),
     ):
         """Construct activity network.

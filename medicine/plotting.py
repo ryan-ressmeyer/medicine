@@ -1,6 +1,7 @@
 """Plotting utilities for MEDICINE."""
 
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -139,7 +140,7 @@ def plot_raster_and_amplitudes(
     peak_depths: np.ndarray,
     peak_amplitudes: np.ndarray,
     stride: int = 10,
-    figure_dir: None | str = None,
+    figure_dir: Optional[str] = None,
 ) -> plt.Figure:
     """Plot raster of raw data and a histogram of amplitudes.
 
@@ -191,7 +192,7 @@ def plot_raster_and_amplitudes(
 
 def plot_training_loss(
     losses: list,
-    figure_dir: None | str = None,
+    figure_dir: Optional[str] = None,
 ) -> plt.Figure:
     """Plot training loss.
 
@@ -221,7 +222,7 @@ def plot_depth_amplitude_distributions(
     medicine_model: model.Medicine,
     dataset: model.Dataset,
     device: torch.device,
-    figure_dir: None | str = None,
+    figure_dir: Optional[str] = None,
     grid_size: int = 100,
     num_timepoints: int = 5,
     data_samples_per_plot: int = 30000,
@@ -374,7 +375,7 @@ def plot_predicted_motion(
     dataset: model.Dataset,
     device: torch.device,
     num_depth_bins: int = 15,
-    figure_dir: None | str = None,
+    figure_dir: Optional[str] = None,
 ) -> plt.Figure:
     """Plot motion over time.
 
@@ -414,7 +415,7 @@ def plot_motion_corrected_raster(
     medicine_model: model.Medicine,
     device: torch.device,
     num_depth_bins: int = 15,
-    figure_dir: None | str = None,
+    figure_dir: Optional[str] = None,
 ) -> plt.Figure:
     """Plot raster-map with motion correction.
 
