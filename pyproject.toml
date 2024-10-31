@@ -10,7 +10,7 @@ dependencies = [
     "scipy >= 1.13.1",
     "tqdm >= 4.66.6",
 ]
-license = {file = "LICENSE.txt"}
+license = {file = "LICENSE"}
 keywords = [
     "neuroscience",
     "neurophysiology",
