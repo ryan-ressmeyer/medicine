@@ -3,9 +3,10 @@
 ## Introduction
 
 MEDiCINe is a method for estimating motion in neurophysiology data for spike
-sorting. See our [publication](https://) for a complete description of the
-method and results. The general idea of MEDiCINe is to decompose neural activity
-data into two components:
+sorting. See our
+[publication](https://www.biorxiv.org/content/10.1101/2024.11.06.622160) for a
+complete description of the method and results. The general idea of MEDiCINe is
+to decompose neural activity data into two components:
 * The **motion** of the brain relative to a probe in depth.
 * An **activity distribution** of the brain along the probe.
 
@@ -295,12 +296,15 @@ If you use MEDiCINe or a derivative of it in your work, please cite it as
 follows:
 
 ```
-@article{watters2024,
-author = {Nick Watters and Alessio Buccino and Mehrdad Jazayeri},
-title = {MEDiCINe: Motion Estimation by DIstributional Contrastive Inference for NEurophysiology},
-url = {https://arxiv.org/},
-journal = {arXiv preprint arXiv:},
-year = {2024}
+@article {Watters2024.11.06.622160,
+	author = {Watters, Nicholas and Buccino, Alessio P and Jazayeri, Mehrdad},
+	title = {MEDiCINe: Motion Correction for Neural Electrophysiology Recordings},
+	elocation-id = {2024.11.06.622160},
+	year = {2024},
+	doi = {10.1101/2024.11.06.622160},
+	URL = {https://www.biorxiv.org/content/10.1101/2024.11.06.622160},
+	eprint = {https://www.biorxiv.org/content/10.1101/2024.11.06.622160.full.pdf},
+	journal = {bioRxiv}
 }
 ```
 
