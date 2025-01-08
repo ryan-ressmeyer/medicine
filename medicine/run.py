@@ -16,6 +16,8 @@ import torch
 
 from medicine import model, plotting
 from medicine.logger import logger
+from typing import Tuple
+
 
 def run_medicine(
     peak_times: np.ndarray,
@@ -36,8 +38,7 @@ def run_medicine(
     learning_rate: float = 0.0005,
     epsilon: float = 1e-3,
     plot_figures: bool = True,
-    return_motion: bool = True,
-) -> model.Trainer:
+) -> Tuple[model.Trainer, torch.Tensor, torch.Tensor, torch.Tensor]:
     """Run MEDICINE motion estimation.
 
     Args:
@@ -68,11 +69,12 @@ def run_medicine(
         learning_rate: Learning rate for training.
         epsilon: Small value to prevent instabilities.
         plot_figures: Whether to plot figures.
-        return_motion: also return the spikeinterface Motion object
 
     Returns:
         trainer: Trainer object after running motion estimation.
-        if return_motion=True also return the Motion object
+        time_bins: Torch tensor of shape [num_time_bins]. Values are the times of the motion values in pred_motion.
+        depth_bins: Torch tensor of shape [num_depth_bins. Values are the depth of the motion values in pred_motion.
+        pred_motion: Torch tensor of shape [num_time_bins, num_depth_bins]. Values are delta depth for each time and depth.
     """
     # Create and clear output_dir
     if output_dir is not None:
@@ -181,9 +183,6 @@ def run_medicine(
         depth_range[1] - depth_range[0]
     )
 
-
-
-
     # Save motion estimation results
     if output_dir is not None:
         logger.info(f"Saving outputs to {output_dir}")
@@ -199,13 +198,6 @@ def run_medicine(
         )
 
 
-    if return_motion:
-        from spikeinterface.sortingcomponents.motion import Motion
-        motion = Motion(
-            displacement=[pred_motion],
-            temporal_bins_s=[time_bins],
-            spatial_bins_um=depth_bins,
-        )
-        return trainer, motion
+    return trainer, time_bins, depth_bins, pred_motion
     else:
         return trainer
