@@ -199,5 +199,3 @@ def run_medicine(
 
 
     return trainer, time_bins, depth_bins, pred_motion
-    else:
-        return trainer
