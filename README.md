@@ -49,7 +49,7 @@ for more details.
 Once you have installed the `medicine-neuro` package, you can use it to do
 motion correction in a SpikeInterface data processing pipeline. SpikeInterface
 peak detection methods require the `numba` package (`$ pip install numba`).
-Using the currently most recent SpikeInterface version 0.101.2, here is an
+Using the currently most recent SpikeInterface version 0.102.1, here is an
 example SpikeInterface pipeline with peak extraction and motion correction using
 MEDiCINe motion estimation:
 ```
@@ -57,7 +57,7 @@ from pathlib import Path
 import medicine
 import numpy as np
 
-from spikeinterface.sortingcomponents.motion import motion_utils
+from spikeinterface.core.motion import Motion
 from spikeinterface.sortingcomponents.motion.motion_interpolation import InterpolateMotionRecording
 from spikeinterface.sortingcomponents.peak_detection import detect_peaks
 from spikeinterface.sortingcomponents.peak_localization import localize_peaks
@@ -87,7 +87,7 @@ time_bins = np.load(medicine_output_dir / 'time_bins.npy')
 depth_bins = np.load(medicine_output_dir / 'depth_bins.npy')
 
 # Use interpolation to correct for motion estimated by MEDiCINe
-motion_object = motion_utils.Motion(
+motion_object = Motion(
     displacement=motion,
     temporal_bins_s=time_bins,
     spatial_bins_um=depth_bins,
